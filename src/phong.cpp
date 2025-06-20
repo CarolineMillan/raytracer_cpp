@@ -14,6 +14,7 @@
 
 void Phong::compute_base_colour(Colour &result)
 {
+	//printf("hello");
 	result.r = ambient.r;
 	result.g = ambient.g;
 	result.b = ambient.b;

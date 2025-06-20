@@ -11,6 +11,10 @@
 
 #include "vector.h"
 #include "colour.h"
+#include <cstdio>
+
+#include <iostream>
+using namespace std;
 
 class Material {
 public:

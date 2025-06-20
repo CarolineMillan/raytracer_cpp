@@ -14,6 +14,9 @@
 #include "colour.h"
 #include "vector.h"
 
+#include <iostream>
+using namespace std;
+
 class Phong : public Material {
 public:
 	Colour ambient;

@@ -32,4 +32,16 @@ public:
 	  os << "Hit{" << h.flag <<",[" << h.position.x << "," << h.position.y << "," << h.position.z << "],[" << h.normal.x << "," << h.normal.y << "," << h.normal.z << "]}\n"; 
           return os;
 	}
+
+	Hit& operator=(Hit other)
+	{
+		if (this !=&other) {
+			flag = other.flag;
+	  		t = other.t;
+	  		what = other.what;
+			position = other.position;
+			normal = other.normal;
+		}
+		return *this;
+	}
 };
