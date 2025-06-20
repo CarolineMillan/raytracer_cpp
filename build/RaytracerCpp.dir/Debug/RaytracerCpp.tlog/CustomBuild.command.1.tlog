@@ -1,0 +1,10 @@
+^C:\USERS\CAROL\DOCUMENTS\CAREER\CODE\RAY_TRACING\SUPREME-OCTO-FISHSTICK\RAYTRACER_CPP\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/carol/Documents/career/code/ray_tracing/supreme-octo-fishstick/raytracer_cpp -BC:/Users/carol/Documents/career/code/ray_tracing/supreme-octo-fishstick/raytracer_cpp/build --check-stamp-file C:/Users/carol/Documents/career/code/ray_tracing/supreme-octo-fishstick/raytracer_cpp/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

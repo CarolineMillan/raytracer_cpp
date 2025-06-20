@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\carol\Documents\career\code\ray_tracing\supreme-octo-fishstick\raytracer_cpp\build\CMakeFiles\705db3f1836ea0e54e15de7e05a0d4c9\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{CB781B72-11BC-3D18-8E09-1E7C1B5C0C82}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
