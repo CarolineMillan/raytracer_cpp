@@ -32,6 +32,14 @@ public:
 		direction = d;
 	}
 
+	Vertex at(float t) const {
+        return Vertex {
+            position.x + direction.x * t,
+            position.y + direction.y * t,
+            position.z + direction.z * t
+        };
+    }
+
 	friend ostream& operator<<(ostream& os, const Ray& r)
 	{
 	  os << "Ray{[" << r.position.x << "," << r.position.y << "," << r.position.z << "],[" << r.direction.x << "," << r.direction.y << "," << r.direction.z << "]}\n"; 

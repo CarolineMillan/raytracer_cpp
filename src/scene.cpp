@@ -11,15 +11,48 @@
 #include "phong.h"
 #include "sphere.h"
 #include "directional_light.h"
+#include "point_light.h"
+#include "photon.h"
+#include "kdtree.h"
+
+#include <cmath>
 
 
 Scene::Scene()
 {
 	object_list = 0;
 	light_list = 0;
+    causticTree   = nullptr;
+    globalTree    = nullptr;
 }
 
+Scene::~Scene() {
+    // 1) Delete all objects in your linked-list:
+    Object *o = object_list;
+    while (o) {
+        Object *next = o->next;
+        delete o;
+        o = next;
+    }
 
+    // 2) Delete all lights in your linked-list:
+    PointLight *pl = light_list;
+    while (pl) {
+        PointLight *next = pl->next;
+        delete pl;
+        pl = next;
+    }
+
+    // 3) Delete your KD-trees:
+    delete causticTree;   // safe if nullptr
+    delete globalTree;    // safe if nullptr
+
+    // 4) (Optional) clear vectors if you still use them:
+    causticPhotons.clear();
+    globalPhotons.clear();
+}
+
+/*
 void Scene::teapot_box() {
 	
 	/// A NICE SCENE -- TEAPOT AND SPHERE INSIDE AN OPEN BOX
@@ -92,17 +125,215 @@ void Scene::teapot_box() {
 	mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_wall7.power = 40.0f;
 
-    pm->material = &mat_pm;
-    pm->material->transparent = false;
-    pm->material->reflective = false;
+	float scaling = 1.0/M_PI;
+
+    pm->material = &glass;
+    pm->material->transparent = true;
+    pm->material->reflective = true;
 	pm->material->eta = 1.5; //glass refractive index
 	pm->material->kr = 0.4;
+	pm->material->BRDF_d = glass.diffuse;
+	pm->material->BRDF_d.scale(scaling);
 
     Vertex v;
-	v.x = 0.0f;
-	v.y = 0.0f;
-	v.z = 0.5f;
-    Sphere *sphere = new Sphere(v, 0.25f);
+	v.x = 1.0f;
+	v.y = 1.0f;
+	v.z = 3.0f;
+    Sphere *sphere = new Sphere(v, 1.0f);
+
+    sphere->material = &mat_pm;
+    sphere->material->transparent = false;
+    sphere->material->reflective = false;
+	sphere->material->eta = 1.5; //glass refractive index
+	sphere->material->kr = 0.4;
+	sphere->material->BRDF_d = mat_pm.diffuse;
+	sphere->material->BRDF_d.scale(scaling); // mat_sphere.diffuse;
+
+    
+	//sphere->next = nullptr;
+
+	/// put the scene in a box -- maybe only have 4/5 walls for light, see how it goes
+	// rewrite this as a loop when you incorporate scene.cpp
+
+	PolyMesh *fl = new PolyMesh((char *)"square.ply");
+	PolyMesh *ce = new PolyMesh((char *)"ceiling.ply");
+	PolyMesh *w1 = new PolyMesh((char *)"wall1.ply");
+	PolyMesh *w2 = new PolyMesh((char *)"wall2.ply");
+	PolyMesh *w3 = new PolyMesh((char *)"wall3.ply");
+	PolyMesh *w4 = new PolyMesh((char *)"wall4.ply");
+
+	
+	fl->material = &mat_wall2;
+    fl->material->transparent = false;
+    fl->material->reflective = false;
+	fl->material->BRDF_d = mat_wall2.diffuse;
+	fl->material->BRDF_d.scale(scaling);
+	fl->material->kr = 0.4;
+
+	ce->material = &mat_wall3;
+    ce->material->transparent = false;
+    ce->material->reflective = false;
+	ce->material->BRDF_d = mat_wall3.diffuse;
+	ce->material->BRDF_d.scale(scaling);
+	ce->material->kr = 0.4;
+
+	w1->material = &mat_wall4;
+    w1->material->transparent = false;
+    w1->material->reflective = false;
+	w1->material->BRDF_d = mat_wall4.diffuse;
+	w1->material->BRDF_d.scale(scaling);
+	w1->material->kr = 0.4;
+
+	w2->material = &mat_wall5;
+    w2->material->transparent = false;
+    w2->material->reflective = false;
+	w2->material->BRDF_d = mat_wall5.diffuse;
+	w2->material->BRDF_d.scale(scaling);
+	w2->material->kr = 0.4;
+	
+	w3->material = &mat_wall6;
+    w3->material->transparent = false;
+    w3->material->reflective = false;
+	w3->material->BRDF_d = mat_wall6.diffuse;
+	w3->material->BRDF_d.scale(scaling);
+	w3->material->kr = 0.4;
+
+	w4->material = &mat_wall7;
+    w4->material->transparent = false;
+    w4->material->reflective = false;
+	w4->material->BRDF_d = mat_wall7.diffuse;
+	w4->material->BRDF_d.scale(scaling);
+	w4->material->kr = 0.4;
+
+	//object_list = pm;
+	object_list = pm;
+	object_list->next = sphere;
+	sphere->next = fl;
+	fl->next = ce;
+	ce->next = w1;
+	w1->next = w2;
+	w2->next = w3;
+	w3->next = w4;
+	w4->next = nullptr;
+
+	// creates a light source
+	Vertex v1 = Vertex(-1.0, -1.0, -1.0);
+	Colour c = Colour(1.0, 1.0, 1.0, 1.0);
+	Vector d = Vector(0.1, 0.1, 0.1);
+	PointLight *pl = new PointLight(v1, c, d);
+	pl->next = nullptr;
+
+	// FIXME -- define object_list and light_list
+	
+	light_list = pl;
+	light_list->next = nullptr;
+
+}
+*/
+
+
+void Scene::teapot_box() {
+	
+	/// A NICE SCENE -- TEAPOT AND SPHERE INSIDE AN OPEN BOX
+
+	// The following transform allows 4D homogeneous coordinates to be transformed. It moves the supplied teapot model to somewhere visible.
+	Transform *transform = new Transform(1.0f, 0.0f, 0.0f,  0.0f,
+			0.0f, 0.0f, 1.0f, -2.7f,
+			0.0f, 1.0f, 0.0f, 5.0f,
+			0.0f, 0.0f, 0.0f, 1.0f);
+
+	//  Read in the teapot model.
+	PolyMesh *pm = new PolyMesh((char *)"teapot_smaller.ply", transform);
+	//objects->next = pm;
+
+	//creates Phong surface illumination model for polymesh
+
+	float scaling = 1.0/M_PI;
+
+	// rgb(244, 250, 252)
+	//Phong glass; 
+	glass.ambient = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
+	glass.diffuse = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
+	glass.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	glass.BRDF_d = glass.diffuse;
+	glass.BRDF_d.scale(scaling);
+	glass.power = 40.0f;
+
+    //Phong bp1; 
+	// rgb(211, 141, 255)
+	mat_pm.ambient = Colour(207.0/255.0, 207.0/255.0, 207.0/255.0, 255.0/255.0);
+	mat_pm.diffuse = Colour(207.0/255.0, 207.0/255.0, 207.0/255.0, 255.0/255.0);
+	mat_pm.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	mat_pm.BRDF_d = mat_pm.diffuse;
+	mat_pm.BRDF_d.scale(scaling);
+	mat_pm.power = 40.0f;
+
+	// rgb(255, 252, 230)
+	//Phong bp2;
+	mat_wall2.ambient = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
+	mat_wall2.diffuse = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
+	mat_wall2.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	mat_wall2.BRDF_d = mat_wall2.diffuse;
+	mat_wall2.BRDF_d.scale(scaling);
+	mat_wall2.power = 40.0f;
+
+	// rgb(247, 198, 198)
+	//Phong bp3;
+	mat_wall3.ambient = Colour(247.0/255.0, 198.0/255.0, 198.0/255.0, 255.0/255.0);
+	mat_wall3.diffuse = Colour(247.0/255.0, 198.0/255.0, 198.0/255.0, 255.0/255.0);
+	mat_wall3.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	mat_wall3.BRDF_d = mat_wall3.diffuse;
+	mat_wall3.BRDF_d.scale(scaling);
+	mat_wall3.power = 40.0f;
+
+	// rgb(199, 247, 198)
+	//Phong bp4;
+	mat_wall4.ambient = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
+	mat_wall4.diffuse = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
+	mat_wall4.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	mat_wall4.BRDF_d = mat_wall4.diffuse;
+	mat_wall4.BRDF_d.scale(scaling);
+	mat_wall4.power = 40.0f;
+
+	// rgb(198, 242, 247)
+	//Phong bp5;
+	mat_wall5.ambient = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
+	mat_wall5.diffuse = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
+	mat_wall5.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	mat_wall5.BRDF_d = mat_wall5.diffuse;
+	mat_wall5.BRDF_d.scale(scaling);
+	mat_wall5.power = 40.0f;
+
+	// rgb(255, 176, 249)
+	//Phong bp6;
+	mat_wall6.ambient = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
+	mat_wall6.diffuse = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
+	mat_wall6.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	mat_wall6.BRDF_d = mat_wall6.diffuse;
+	mat_wall6.BRDF_d.scale(scaling);
+	mat_wall6.power = 40.0f;
+
+	// rgb(180, 169, 245)
+	//Phong bp7;
+	mat_wall7.ambient = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
+	mat_wall7.diffuse = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
+	mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	mat_wall7.BRDF_d = mat_wall7.diffuse;
+	mat_wall7.BRDF_d.scale(scaling);
+	mat_wall7.power = 40.0f;
+
+    pm->material = &mat_pm;
+    pm->material->transparent = false;
+    pm->material->reflective = true;
+	pm->material->eta = 1.5; //glass refractive index
+	pm->material->kr = 0.4;
+	pm->material->kt = 0.4;
+
+    Vertex v;
+	v.x = 1.0f;
+	v.y = 1.0f;
+	v.z = 5.0f;
+    Sphere *sphere = new Sphere(v, 1.0f);
 
     sphere->material = &glass;
     sphere->material->transparent = true;
@@ -155,18 +386,35 @@ void Scene::teapot_box() {
 	ce->next = w1;
 	w1->next = w2;
 	w2->next = w3;
-	w3->next = nullptr;
-	//w4->next = nullptr;
+	w3->next = w4;
+	w4->next = nullptr;
 
 	//creates a light source
-    DirectionalLight *dl = new DirectionalLight(Vector(0.01f, 0.01f, 1.0f),Colour(1.0f, 1.0f, 1.0f, 1.0f)); 
+    //DirectionalLight *dl = new DirectionalLight(Vector(0.01f, 0.01f, 1.0f),Colour(1.0f, 1.0f, 1.0f, 1.0f)); 
 	//lights->next = dl;
-	dl->next = nullptr; 
+	//dl->next = nullptr; 
+
+	Vertex v1 = Vertex(0.2, 0.2, 0.2);
+	Colour c = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+	Vector d = Vector(0.01f, 0.01f, 1.0f);
+
+
+	PointLight *pl = new PointLight(v1, c, d);
 
 	// FIXME -- define object_list and light_list
 	object_list = pm;
-	light_list = dl;
+	object_list->next = sphere;
+	light_list = pl;
+	light_list->next = nullptr;
 
+	std::cout << "pm: " << pm << std::endl;
+	std::cout << "sphere: " << sphere << std::endl;
+	std::cout << "fl: " << fl << std::endl;
+	std::cout << "ce: " << ce << std::endl;
+	std::cout << "w1: " << w1 << std::endl;
+	std::cout << "w2: " << w2 << std::endl;
+	std::cout << "w3: " << w3 << std::endl;
+	std::cout << "w4: " << w4 << std::endl;
 }
 
 
@@ -176,10 +424,17 @@ void Scene::test() {
 	// rgb(211, 141, 255)
 	// rgb(244, 250, 252)
 	//Phong bp1; 
+	mat_sphere = Phong();
 	mat_sphere.ambient = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
 	mat_sphere.diffuse = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
 	mat_sphere.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_sphere.power = 40.0f;
+	mat_sphere.transparent = true;
+    mat_sphere.reflective = true;
+	mat_sphere.eta = 1.5; //glass refractive index
+	mat_sphere.kr = 0.4;
+	//mat_sphere.BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
+	mat_sphere.BRDF_d = Colour(0.0, 0.0, 0.0, 0.0);
 
 	//p1 = bp1;
 
@@ -202,38 +457,58 @@ void Scene::test() {
 	//p3 = bp6;
 
 	Vertex v;
-	v.x = 1.0f;
-	v.y = 1.0f;
+	v.x = -1.0f;
+	v.y = -1.0f;
 	v.z = 5.0f;
     Sphere *sphere = new Sphere(v, 1.0f);
 
     sphere->material = &mat_sphere;
+	/*
     sphere->material->transparent = true;
     sphere->material->reflective = true;
 	sphere->material->eta = 1.5; //glass refractive index
 	sphere->material->kr = 0.4;
-
+	sphere->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
+	sphere->material->BRDF_d = Colour(0.0, 0.0, 0.0, 0.0);
+*/
 	PolyMesh *w1 = new PolyMesh((char *)"wall1.ply");
 
 	w1->material = &mat_wall1;
-    w1->material->transparent = false;
-    w1->material->reflective = false;
+    w1->material->transparent = true;
+    w1->material->reflective = true;
+	//w1->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
+	w1->material->BRDF_d = Colour(1.0, 1.0, 1.0, 1.0);
+	w1->material->eta = 1.5; //glass refractive index
+	w1->material->kr = 0.4;
 
 	PolyMesh *w3 = new PolyMesh((char *)"wall3.ply");
 	
 	w3->material = &mat_wall3;
     w3->material->transparent = false;
     w3->material->reflective = false;
+	//w3->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
+	w3->material->BRDF_d = Colour(1.0, 1.0, 1.0, 1.0);
 
 	object_list = sphere;
 	object_list->next = w1;
 	w1->next = w3;
 	w3->next = nullptr;
 
+	std::cout << "sphere: " << object_list << std::endl;
+	std::cout << "w1: " << object_list->next << std::endl;
+	std::cout << "w3: " << object_list->next->next << std::endl;
+
 	//creates a light source
     DirectionalLight *dl = new DirectionalLight(Vector(0.01f, 0.01f, 1.0f),Colour(1.0f, 1.0f, 1.0f, 1.0f)); 
-	light_list = dl;
-	dl->next = nullptr; 
+
+	Vertex pt = Vertex(-1.0, -1.0, -1.0);
+	Colour c = Colour(1.0, 1.0, 1.0, 1.0);
+	Vector dir = Vector(0.1, 0.1, 0.1);
+	light_list = new PointLight(pt, c, dir);
+	light_list->next = nullptr; 
+
+	std::cout << "light_list->direction: " << light_list->direction.x << ", " << light_list->direction.y << ", " << light_list->direction.z << std::endl;
+			
 }
 
 
@@ -260,25 +535,171 @@ void Scene::object_intersection(Ray ray, Hit &best_hit) {
 }
 
 
-/// returns the depth and colour of the closest intersection between ray and the list of objects via classic Whitted-style ray tracing
-void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit) {
+void Scene::point_light_intersection(Ray ray, PointLight*& pl, float &depth, bool &flag) {
+	
+	PointLight *light = light_list;
+	pl = nullptr;
+	flag = false;
+
+	while(light != 0) {
+
+		Vector toLight;
+		toLight.x = light->point.x - ray.position.x;
+		toLight.y = light->point.y - ray.position.y;
+		toLight.z = light->point.z - ray.position.z;
+		float t = toLight.dot(ray.direction);
+
+		if (t > 0) {
+
+			Vector closest;
+			closest.x = ray.at(t).x - light->point.x;
+			closest.y = ray.at(t).y - light->point.y;
+			closest.z = ray.at(t).z - light->point.z;
+
+			// 1e-4f is squared because we square the thing we're comparing it to
+			if (closest.len_sqr() < (1e-4f)*(1e-4f) && t < depth) {
+				depth = t;
+				pl = light;
+				flag = true;
+			}
+		}
+
+		light = light->next;
+	}
+	return;
+}
+
+
+// takes a ray and a hit and outputs a refracted ray from the hit point. Also sets hit material's kr and kt values.
+void Scene::refract_ray(const Ray &incoming, Hit &hit, Ray &refracted, bool &total_internal_reflection) {
+
+	float eta = hit.what->material->eta;
+
+	Vector n = hit.normal;
+	n.normalise();
+	Vector d = incoming.direction;
+	d.normalise();
+	float cos_theta_i = fabs(n.dot(-1*d));
+
+	// test here for total_internal_reflection
+
+	float cos_theta_t = sqrt(1.0 - ( 1.0 / (pow(eta,2.0) ) ) * ( 1.0 - pow(cos_theta_i,2.0) ) );
+	//cos_theta_t = sqrt(1.0f - sin2_t);
+
+	if(cos_theta_t >= 0) {
+
+		// should I use n insteaed of hit.normal?
+		refracted.direction = (1/eta)*incoming.direction - (cos_theta_t - (1/eta)*cos_theta_i)*hit.normal;
+
+		refracted.position.x = hit.position.x + 0.001*refracted.direction.x;
+		refracted.position.y = hit.position.y + 0.001*refracted.direction.y;
+		refracted.position.z = hit.position.z + 0.001*refracted.direction.z;
+
+		//fresnel equations
+		float rpar = (eta*cos_theta_i - cos_theta_t)/(eta*cos_theta_i + cos_theta_t);
+		float rper = (cos_theta_i - eta*cos_theta_t)/(cos_theta_i + eta*cos_theta_t);
+		hit.what->material->kr = 0.5*(rpar*rpar + rper*rper); 
+		hit.what->material->kt = 1.0-hit.what->material->kr;
+	}
+	else {
+		total_internal_reflection = true;
+	}
+	//this is the value needed for reflection in this surface at this point
+	// it is used in the reflection section
+	//hit.what->material->kr = kr;
+	//hit.what->material->kt = kt;
+}
+
+
+// takes a ray and a hit and outputs a reflected ray from the hit point
+void Scene::reflect_ray(const Ray &incoming, Hit &hit, Ray &reflected) {
+
+	Vector n = hit.normal;
+	Vector dir = incoming.direction;
+
+	//calculate reflected eye ray
+	reflected.direction = dir - 2.0*(n.dot(dir))*n;
+
+	reflected.position.x = hit.position.x + 0.001*reflected.direction.x;
+	reflected.position.y = hit.position.y + 0.001*reflected.direction.y;
+	reflected.position.z = hit.position.z + 0.001*reflected.direction.z;
+}
+
+
+Colour Scene::gather_diffuse(const Hit best_hit, const vector<Photon*> globalNeighbours) {
+
+	Colour diffuse = Colour();
+	float r=0; //get radius of the sphere from max distance between best_hit.position and rest of nodes
+	float d=0, dA=0; 
+
+	//find where the photons came from
+	vector<Ray> initial_rays;
+
+	for (Photon* p : globalNeighbours) {
+
+		float dot = -1.0* (p->direction).dot(best_hit.normal);
+
+		diffuse.r += p->BRDF_d.r * (p->intensity.r) * dot;
+		diffuse.g += p->BRDF_d.g * (p->intensity.g) * dot;
+		diffuse.b += p->BRDF_d.b * (p->intensity.b) * dot;
+
+		//find max distance
+		d = best_hit.position.distance(p->position);
+		if (d > r) r = d;
+	}
+
+	if (r>0) {
+		dA = M_PI * r * r; //area of disc associated with sphere
+		float scaling = (1.0/dA);
+		diffuse.scale(scaling);
+	}
+
+	if (diffuse.r != 0 || diffuse.g != 0 || diffuse.b != 0) {
+		//std::cout << "diffuse: " << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << std::endl;
+	}
+
+	return diffuse;
+}
+
+
+
+/// returns the depth and colour of the closest intersection between ray and the list of objects via classic Whitted-style ray tracing with global and caustic photon mapping 
+void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &best_hit) {
 
 	if (ref_limit < 0) return;
 
-	Hit best_hit;
+	// check for point light intersection, gives us L_e value 
+	PointLight* pl;
+	bool flag = false;
+
+	point_light_intersection(ray, pl, depth, flag);
+
+	if (flag) {
+		// we've intersected a light source, so return the light colour
+		colour = pl->intensity;
+		return;
+	}
+
+	//Hit best_hit;
 	Hit shadow_hit;
+	shadow_hit.flag = false;
 	object_intersection(ray, best_hit);
 
 	// if we found a primitive then compute the colour we should see
 	if(best_hit.flag) {
+
+		//std::cout << "colour 1: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 		// get colour of the material we've hit
 		best_hit.what->material->compute_base_colour(colour);
+
+		//std::cout << "colour 2: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 		// get the depth of the object
 		depth = best_hit.t;
 
 		// get a handle on the first light -- check this
-		Light *light = light_list;
+		PointLight *light = light_list;
 		// check all the light sources for shadow rays
+		// tis gives us direct lighting L_d
 		while (light != (Light *)0) {
 			// check for a hit between best_hit and light source
 			Vector viewer;
@@ -292,144 +713,306 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit) {
 			//is best_hit hit by the light?
 			bool lit;
 			lit = light->get_direction(best_hit.position, ldir); 
-			if(ldir.dot(best_hit.normal)>0)	lit=false;//light is facing wrong way.
+			//std::cout << "lit: " << lit << std::endl;
+
+			if(ldir.dot(best_hit.normal)>0)	{
+				lit=false;//light is facing wrong way.
+			}
 			if(lit) {
 				// create a "shadow ray" from best_hit to the light source
 				// if it intersects anything, then the point is in shadow
+				
 				Ray shadow_ray;
+
+				// you want this to be the vector from the hit point to the point light
+				// ie pl - best_hit.position
+
+				//shadow_ray.direction.x = light->point.x - best_hit.position.x;
+				//shadow_ray.direction.y = light->point.y - best_hit.position.y;
+				//shadow_ray.direction.z = light->point.z - best_hit.position.z;
 
 				shadow_ray.direction.x = -ldir.x;
 				shadow_ray.direction.y = -ldir.y;
 				shadow_ray.direction.z = -ldir.z;
+
 				shadow_ray.position.x = best_hit.position.x + (0.0001f * shadow_ray.direction.x);
 				shadow_ray.position.y = best_hit.position.y + (0.0001f * shadow_ray.direction.y);
 				shadow_ray.position.z = best_hit.position.z + (0.0001f * shadow_ray.direction.z);
 
+				// debug: print where the shadow ray goes, its t‐limit, and what it hits
+				/* std::cout
+				<< " ShadowRay from (" << best_hit.position.x << ","
+										<< best_hit.position.y << ","
+										<< best_hit.position.z << ") "
+				<< "dir (" << shadow_ray.direction.x << ","
+							<< shadow_ray.direction.y << ","
+							<< shadow_ray.direction.z << ") "
+				<< "\n"; */
+
+				auto temp = best_hit.position;
+				float dist = temp.distance(light->point);
+
+				/* std::cerr
+					<< " Shadow test: origin=("
+					<< shadow_ray.position.x << ","
+					<< shadow_ray.position.y << ","
+					<< shadow_ray.position.z << ") dir=("
+					<< shadow_ray.direction.x << ","
+					<< shadow_ray.direction.y << ","
+					<< shadow_ray.direction.z << ") "
+					<< "dist-to-light=" << dist
+					<< "  t_hit=" << shadow_hit.t
+					<< "ldir: "
+					<< ldir.x << ", "
+					<< ldir.y << ", "
+					<< ldir.z << ", "
+					<< "\n"; */
+
+
+
 				object_intersection(shadow_ray, shadow_hit);
 
-				//there's a shadow so no lighting, if realistically close
-				if(shadow_hit.flag && shadow_hit.t < 1000000000.0f) lit = false;
+				//std::cout << "shadow_hit.what: " << shadow_hit.what << std::endl;
+				//std::cout << "shadow_hit.position: " << shadow_hit.position.x << ", " << shadow_hit.position.y << ", " << shadow_hit.position.z  << std::endl;
+				//std::cout << "shadow_hit.t: " << shadow_hit.t << std::endl;
+
+				
+
+				//std::cout << "dist: " << dist << std::endl;
+
+
+
+				//there's a shadow so no lighting, if  the hit is closer than the point light
+				if(shadow_hit.flag && (shadow_hit.t < dist)) { //1000000000.0f) {
+					lit = false;
+					//printf("0");
+				}
+				else {
+					//printf("1");
+				}
+
 			}
 			//do colour
 			if (lit) {
-					Colour intensity;
-					Colour scaling;
 
-					light->get_intensity(best_hit.position, scaling);
-					best_hit.what->material->compute_light_colour(viewer, best_hit.normal, ldir, intensity);
-					
-					//scale by scaling to get intensity
-					intensity.scale(scaling);
+				//printf("we are lit!!");
+				Colour intensity;
+				Colour scaling;
 
-					//add intensity to the colour
-					colour.add(intensity);
+				light->get_intensity(best_hit.position, scaling);
+				best_hit.what->material->compute_light_colour(viewer, best_hit.normal, ldir, intensity);
+				
+				//scale by scaling to get intensity
+				intensity.scale(scaling);
+
+				//add intensity to the colour
+				colour.add(intensity);
+				//std::cout << "colour 3: " << colour.r << ", " << intensti.g << ", " << intensity.b << std::endl;
 				}
 			// move on to the next light
 			light = light->next;
 		}
+		
+		//std::cout << "colour 3: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 		// generate secondary ray (reflection and/or refraction)
 		// ref_limit stops infinite recursion
+		// this is some L_s, specular
 		if(best_hit.what->material->transparent)
 		{
-			Ray T;
-			Colour trans_colour, refl_colour;
-			float trans_depth, eta, cos_theta_t, cos_theta_i, rpar, rper, kr, kt;
+			//std::cout << "in transparent" << std::endl;
+			Ray refracted;
+			bool total_internal_reflection = false;
 
-			eta = best_hit.what->material->eta;
+			refract_ray(ray, best_hit, refracted, total_internal_reflection);
 
-			Vector n;
-			n =  best_hit.normal;
-			n.normalise();
-			Vector d;
-			d = ray.direction;
-			d.normalise();
-			cos_theta_i = fabs(n.dot(-1*d));
-
-			if (1.0 - ( 1.0 / (pow(eta,2) ) >=0.0 )) {
-				cos_theta_t = sqrt(1.0 - ( 1.0 / (pow(eta,2.0) ) ) * ( 1.0 - pow(cos_theta_i,2.0) ) );
-			}
-
-			float sin2_t = (1.0f / (eta * eta)) * (1.0f - cos_theta_i * cos_theta_i);
+			// I dont think you need to save these values here, but just in case something goes wrong try uncommenting this
+			//float kt = best_hit.what->material->kt;
+			//float kr = best_hit.what->material->kr;
 			
-			// why do we test sin2_t and not if(cos_theta_t >= 0) ?
-			
-			if (sin2_t <= 1.0f) {
-				cos_theta_t = sqrt(1.0 - ( 1.0 / (pow(eta,2.0) ) ) * ( 1.0 - pow(cos_theta_i,2.0) ) );
-				//cos_theta_t = sqrt(1.0f - sin2_t);
-
-				T.direction = (1/eta)*ray.direction - (cos_theta_t - (1/eta)*cos_theta_i)*best_hit.normal;
-
-				T.position.x = best_hit.position.x + 0.001*T.direction.x;
-				T.position.y = best_hit.position.y + 0.001*T.direction.y;
-				T.position.z = best_hit.position.z + 0.001*T.direction.z;
+			if (!total_internal_reflection) {
+				Colour trans_colour;
+				float trans_depth;
+				Hit h = Hit();
 
 				ref_limit -= 1;
 
 				//raytrace the refracted ray
-				raytrace(T, trans_colour, trans_depth, ref_limit);
-
-				//fresnel equations
-				rpar = (eta*cos_theta_i - cos_theta_t)/(eta*cos_theta_i + cos_theta_t);
-				rper = (cos_theta_i - eta*cos_theta_t)/(cos_theta_i + eta*cos_theta_t);
-				kr = 0.5*( pow(rpar,2) + pow(rper,2) ); 
-				kt = 1-kr;
-
-				//this is the value needed for reflection in this surface at this point
-				// it is used in the reflection section
-				best_hit.what->material->kr = kr;
-				best_hit.what->material->kt = kt;
-
-				if (kr < 0 || kr > 1) std::cout << "kr: " << kr << std::endl;
-				if (kt < 0 || kt > 1) std::cout << "kt: " << kt << std::endl;
+				raytrace(refracted, trans_colour, trans_depth, ref_limit, h);
 
 				//scale trans_colour by kt
-				trans_colour.r *= kt; //use scale function?
-				trans_colour.g *= kt;
-				trans_colour.b *= kt;
+				trans_colour.scale(best_hit.what->material->kt); 
 
 				//add the refracted colour to the colour
 				colour.add(trans_colour);
 			}
 
 		}
-		
+
+		//std::cout << "colour 4: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
+
 		// compute reflection ray if material supports it.
+		// this is more L_s, specular
 		if(best_hit.what->material->reflective)	{
-			Ray R;
-			float kr, ref_depth;
+			Ray reflected;
 			Hit rhit;
-			Colour ref_colour;
 
-			//calculate reflected eye ray
-			R.direction = ray.direction - 2*((best_hit.normal).dot(ray.direction))*best_hit.normal;
-
-			R.position.x = best_hit.position.x + 0.001*R.direction.x;
-			R.position.y = best_hit.position.y + 0.001*R.direction.y;
-			R.position.z = best_hit.position.z + 0.001*R.direction.z;
+			reflect_ray(ray, best_hit, reflected);
 
 			//tests if there is an object to be reflected in the surface
-			object_intersection(R, rhit); 
+			object_intersection(reflected, rhit); 
 
 			ref_limit -= 1;
 
 			if(ref_limit<0)	return;
 
 			if(rhit.flag) {
+
+				float ref_depth;
+				Colour ref_colour;
+				Hit h = Hit();
+
 				//get colour of reflection 
+				raytrace(reflected, ref_colour, ref_depth, ref_limit, h); 
 
-				raytrace(R, ref_colour, ref_depth, ref_limit); 
-
-				kr = best_hit.what->material->kr;
+				//kr = best_hit.what->material->kr;
 
 				//scale by kr
-				ref_colour.r *= kr; 
-				ref_colour.g *= kr;
-				ref_colour.b *= kr;
+				ref_colour.scale(best_hit.what->material->kr);
 
 				//add reflective colour to the colour
 				colour.add(ref_colour);
 			}
 		}
+		
+		//std::cout << "colour 5: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
+		// add photon map checks here
+
+		// this is L_c, caustic
+
+		if (causticTree) {
+			vector<Photon*> causticNeighbours;
+			causticTree->kNearest(best_hit.position, 50, causticNeighbours);
+
+			//std::cout << "causticNeighbours.size: " << causticNeighbours.size() << std::endl;
+			//printf("out of knearest");
+			Colour caustic = Colour();
+
+			float r = 0.0f; //get radius of the sphere from max distance between best_hit.position and rest of nodes
+			float d=0.0f; //, max_d = 0;
+
+			//each photon in sphere
+			for (Photon* p : causticNeighbours) {
+
+				//find colour
+				float dot = -1.0f * p->direction.dot(best_hit.normal);
+				
+				// need temp because we're in a for loop and don't want to overwrite caustic each iteration
+				Colour temp = p->BRDF_d;
+				temp.scale(p->intensity);
+				temp.scale(dot);
+
+				caustic.add(temp);
+
+				//find max distance 
+				d = best_hit.position.distance(p->position);
+				//std::cout<< "d: " << d << std::endl;
+				if (d > r) r = d;
+			}
+			//std::cout<< "r: " << r << std::endl;
+			float dA = M_PI * r * r; //area of disc associated with sphere of radius r
+			//normalise by the disc area (check it's positive maybe? FIXME)
+			if (r>0) { 
+				float scaling = 1.0/dA;
+				caustic.scale(scaling); 
+			}
+			float photonBoost = 100.0f;             // try 10, 100, 1000…
+			Colour boosted = caustic;
+			boosted.scale(photonBoost);
+			colour.add(boosted);
+
+			//colour.add(caustic);
+			if (caustic.r != 0 || caustic.g != 0 || caustic.b != 0) {
+				//std::cout << "caustic: " << caustic.r << ", " << caustic.g << ", " << caustic.b << std::endl;
+			}
+		}
+
+		//std::cout << "colour 6: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
+		// this is L_d, diffuse
+
+		if (globalTree) {
+
+			vector<Photon*> globalNeighbours;	
+			globalTree->kNearest(best_hit.position, 5, globalNeighbours);
+
+			Colour diffuse = gather_diffuse(best_hit, globalNeighbours);
+			float photonBoost = 100.0f;             // try 10, 100, 1000…
+			Colour boosted = diffuse;
+			boosted.scale(photonBoost);
+			colour.add(boosted);
+
+			//colour.add(diffuse);
+
+			// get rays -- TODO look into emplace_back() instead
+			vector<Ray> current_rays;
+			for (Photon* p : globalNeighbours) {
+				Ray new_r = Ray(p->position, p->direction);
+				current_rays.push_back(new_r);
+			}
+			// ----------------------------------------------
+
+			//store the intensity at this point, multiply by kr of the object
+
+			//use importance sampling to decide which to follow and then resample at the next hit point (reflection)
+
+			//bounce limit for photons
+			int bounce_limit = 3;
+			
+
+			while (bounce_limit > 0 && !current_rays.empty()) {
+
+				bounce_limit--;
+				Colour diffuse_reflection = Colour();
+				vector<Ray> nxt_rays;
+
+				//ideally for imp_rays
+				for (Ray &ray : current_rays) {
+				
+					Hit nxt_hit;
+					object_intersection(ray, nxt_hit); //get next hit point of each ray
+
+					if(!nxt_hit.flag) continue;
+
+					//do k nearest neighbours sampling again, but scale each reflection by kr (BRDF?) and add them all together
+					vector<Photon*> globalNeighbours;
+					globalTree->kNearest(nxt_hit.position, 5, globalNeighbours);
+
+					Colour d = gather_diffuse(nxt_hit, globalNeighbours);
+					d.scale(nxt_hit.what->material->kr);
+					diffuse_reflection.add(d);
+
+					// get next rays
+					for (Photon* p : globalNeighbours) {
+						Ray new_r = Ray(p->position, p->direction);
+						nxt_rays.push_back(new_r);
+					}
+				}
+				float photonBoost = 100.0f;             // try 10, 100, 1000…
+				Colour boosted = diffuse_reflection;
+				boosted.scale(photonBoost);
+				colour.add(boosted);
+
+				//colour.add(diffuse_reflection);
+				current_rays.swap(nxt_rays);
+				if (diffuse_reflection.r != 0 || diffuse_reflection.g != 0 ||diffuse_reflection.b != 0 ) {
+					//std::cout << "diffuse_reflection: " << diffuse_reflection.r << ", " << diffuse_reflection.g << ", " << diffuse_reflection.b << std::endl;
+				}
+			}
+			if (diffuse.r != 0 || diffuse.g != 0 || diffuse.b != 0) {
+				//std::cout << "diffuse: " << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << std::endl;
+			}
+		}
+	
+		//std::cout << "colour 7: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 	} else {
 		// colour = background_colour
 		// I like rgb(163, 249, 255)
@@ -438,505 +1021,160 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit) {
 		colour.b = 255.0/255.0;
 		depth = 7.0f;
 	}
+	
+	//std::cout << "colour 8: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 	return;
 }
 
 
-
-/* PHOTON MAPPING STUFF
-
-void g_trace(Photon *photon, Object *objects, PointLight *pl, int ref_limit, Kdtree::KdNodeVector g_nodes) //traces a single photon through the scene, saves them as a vector of nodes
-		{
-	Ray photon_ray;
-	photon->ray(photon_ray);
-
-	Hit best_hit;
-
-	object_test(photon_ray, objects, best_hit); //where does this photon hit first? maybe add in the shadow photons here
-
-	photon->position = best_hit.position;
-
-	Kdtree::KdNode p;
-
-	std::vector<double> pos;
-
-	pos[0] = photon->position.x;
-	pos[1] = photon->position.y;
-	pos[2] = photon->position.z;
-
-	p.point = pos; //what point should i give it?
-	p.data = photon;
-
-	g_nodes.push_back(p);
-
-	int new_w = 0;
-
-	photon->g_russian_roulette(best_hit, photon->w, new_w);
-
-	photon->w = new_w; //gets the new weight for russian_roulette
-
-	while (!photon->absorbed) //russian roulette threshhold/weighting should mean the photon is eventually absorbed
-	{
-		if (photon->reflected) //calculate BDRF for reflection coefficient, use rendering equation later
-		{
-
-			Ray R;
-			Hit rhit;
-
-			//use BDRF to determine new intensity
-			photon->BRDF_s = best_hit.what->material->BRDF_s;
-			photon->BRDF_d = best_hit.what->material->BRDF_d;
-
-			//add this photon to kd tree
-			Kdtree::KdNode p;
-			std::vector<double> pos;
-
-			pos[0] = photon->position.x;
-			pos[1] = photon->position.y;
-			pos[2] = photon->position.z;
-
-			p.point = pos;
-			p.data = photon;
-
-			g_nodes.push_back(p);
-		}
-
-		photon->g_russian_roulette(best_hit, photon->w, new_w); //need to do russian roulette again every iteration of the while loop
-
-		photon->w = new_w;
-	}
-
-	//store last absorbed photon of the while loop in the tree - if statement?
-	pos[0] = photon->position.x;
-	pos[1] = photon->position.y;
-	pos[2] = photon->position.z;
-
-	p.point = pos;
-	;
-	p.data = photon;
-
-	g_nodes.push_back(p);
-
-	//continue path and store shadow photons
-	while (objects != 0) {
-		Hit obj_hit;
-		obj_hit.flag = false;
-
-		//does the photon intersect with this object?
-		objects->intersection(photon_ray, obj_hit);
-
-		if (obj_hit.flag) {
-			if (obj_hit.position.x == best_hit.position.x
-					&& obj_hit.position.y == best_hit.position.y
-					&& obj_hit.position.y == best_hit.position.y) {
-				photon->position = obj_hit.position;
-				photon->shadow = true;
-
-				Kdtree::KdNode p;
-				std::vector<double> pos;
-
-				pos[0] = photon->position.x;
-				pos[1] = photon->position.y;
-				pos[2] = photon->position.z;
-
-				p.point = pos;
-				p.data = photon;
-
-				g_nodes.push_back(p);
-			}
-		}
-
-	}
-}
-
-
 //doesn't emit towards specular surfaces, it emits in random directions then checks if the intersection is specular
-void c_trace(Photon *photon, Object *objects, int ref_limit, Kdtree::KdNodeVector c_nodes) //traces a single photon through the scene, saves them as a vector of nodes
-		{
+//traces a single photon through the scene, saves them in causticPhotons and globalPhotons
+void Scene::photon_trace(Photon *photon, int ref_limit) {
+
+	//printf("1");
+
+	bool saw_specular = false;
 	Ray photon_ray;
 	photon->ray(photon_ray);
 
-	Hit best_hit;
+	//printf("2");
+	// loop starts here
+	// do you use ref_limit or photon->absorbed and russian roulette?
+	// what is ref_limit used for here?
+	while (ref_limit > 0) {
+		
+		/*if (ref_limit < 5) {
+			std::cout << "ref_limit: " << ref_limit << std::endl;
+			std::cout << "first saw_specular: " << saw_specular << std::endl;
+			
+		}*/
 
-	object_test(photon_ray, objects, best_hit); //where does this photon hit first? maybe add in the shadow photons here
+		
+		ref_limit--;
+		//printf("3a");
+		Hit best_hit;
+		object_intersection(photon_ray, best_hit); //where does this photon hit first? maybe add in the shadow photons here
 
-	if (best_hit.what->material->transparent) //only does it with photons that directly hit a transparent surface, what if they are reflected onto a transparent surface?
-	{
+
+		//std::cout << "photon ray: " << photon_ray << std::endl;
+		//printf("3b");
+		if (!best_hit.flag) break;
+
+		//printf("4");
 		photon->position = best_hit.position;
 
-		Kdtree::KdNode p;
+		//std::cout << "hit object: " << best_hit.what << std::endl;
 
-		std::vector<double> pos;
+		bool is_specular = best_hit.what->material->reflective || best_hit.what->material->transparent;
 
-		pos[0] = photon->position.x;
-		pos[1] = photon->position.y;
-		pos[2] = photon->position.z;
+		if (!is_specular) {
+			//printf("5");
+			// add to global and check for caustic
+			photon->position = best_hit.position;
+			photon->BRDF_d = best_hit.what->material->BRDF_d;
+			//photon->BRDF_s = best_hit.what->material->BRDF_s;
+			globalPhotons.push_back(photon);
 
-		p.point = pos;
-		; //what point should i give it?
-		p.data = photon;
+			//std::cout << "globalPhotons.size: " << globalPhotons.size() << std::endl;
 
-		c_nodes.push_back(p);
+			if (saw_specular) {
+				//printf("6");
+				causticPhotons.push_back(photon);
+				// reset the caustic photon
+				saw_specular = false;
+			}
+			//photon->g_russian_roulette(best_hit);
+			// FIXME bounce function to get the next ray
+			// actually, start with just one diffuse hit, inc for global photons
+			break;
+		} else {
+			//printf("7");
+			saw_specular = true;
+			photon->c_russian_roulette(best_hit);
+			Ray new_ray;
 
-		//continue path and store shadow photons - not in caustic
+			//std::cout << "transmitted? " << photon->transmitted << std::endl;
+			//std::cout << "reflected? " << photon->reflected << std::endl;
 
-		int new_w;
-
-		photon->c_russian_roulette(best_hit, photon->w, new_w);
-
-		photon->w = new_w;
-
-		while (!photon->absorbed) {
+			if (photon->reflected) {
+				//printf("8");
+				// change the intensity -- here or in c_russian_roulette?
+				// don't want to kill a specular photon in russian roulette, 
+				// it only terminates if it hits a diffuse surface, or the bounce limit runs out
+				reflect_ray(photon_ray, best_hit, new_ray);
+				photon_ray.position = new_ray.position;
+				photon_ray.direction = new_ray.direction;
+			}
 			if (photon->transmitted) {
-				//direction is a function type of transmission - new direction is
-				//if its transmitted we need a new direction, use raytracing transparency stuff
-				Kdtree::KdNode p;
-
-				std::vector<double> pos;
-
-				pos[0] = photon->position.x;
-				pos[1] = photon->position.y;
-				pos[2] = photon->position.z;
-
-				p.point = pos;
-				p.data = photon;
-				c_nodes.push_back(p);
-				photon->c_russian_roulette(best_hit, photon->w, new_w);
-				photon->w = new_w;
+				bool tir = false;
+				//std::cout << "photon_ray: " << photon_ray << std::endl;
+                refract_ray(photon_ray, best_hit, new_ray, tir);
+				photon_ray.position = new_ray.position;
+				photon_ray.direction = new_ray.direction;
+				//std::cout << "photon_ray: " << photon_ray << std::endl;
+				if (tir) {
+                    // if total internal reflection, treat as mirror
+                    reflect_ray(photon_ray, best_hit, new_ray);
+					photon_ray.position = new_ray.position;
+					photon_ray.direction = new_ray.direction;
+					//std::cout << "photon_ray: " << photon_ray << std::endl;
+                }
 			}
 		}
-
-		//stores the last absorbed photon of the while loop
-
-		pos[0] = photon->position.x;
-		pos[1] = photon->position.y;
-		pos[2] = photon->position.z;
-
-		p.point = pos;
-		p.data = photon;
-
-		c_nodes.push_back(p);
+		//printf("10");
+		//std::cout << "saw specular: " << saw_specular << std::endl;
 	}
+	//printf("11");
 }
 
 
-void g_photon_map(Object *objects, PointLight *lights, int ref_limit, Kdtree::KdNodeVector g_nodes) //creates a global photon map
-		{
+/// creates caustic and global photon maps, saves them in causticTree and globalTree
+void Scene::create_photon_maps() {
+	//caustic_photon_map(5);
+	//global_photon_map(5);
 
-	Kdtree::KdNodeVector g_nodes1;
+	causticPhotons.clear();
 
-	for (int n = 0; n == 100000; n++) {
-		while (lights != (Light*) 0) {
-			Photon *photon = new Photon(*lights);
+	globalPhotons.clear();
 
-			//trace a photon through the scene and store all the hits in a kd tree
-			g_trace(photon, objects, lights, 6, g_nodes1);
+	PointLight *light = light_list;
+	int no_of_photons = 1000000;
 
-			for (int i = 0; i == g_nodes1.size(); i++) //add all these photons to the tree
-					{
-				Kdtree::KdNode kdnode;
-
-				kdnode.data = g_nodes1[i].data;
-				kdnode.point = g_nodes1[i].point;
-
-				g_nodes.push_back(kdnode);
-			}
-
-			lights = lights->next; //move on to next light
-		}
-	}
-		}
-
-
-void c_photon_map(Object *objects, PointLight *lights, int ref_limit, Kdtree::KdNodeVector c_nodes) //creates a caustic photon map, only deals with transparency, don't need depth?
-		{
-	Kdtree::KdNodeVector c_nodes1;
-
-	for (int n = 0; n == 100000; n++) //1 million photons?
-			{
-		while (lights != (Light*) 0) {
-			Photon *photon = new Photon(*lights);
-
+	for (int n = 0; n < no_of_photons; n++) {
+		while (light != (PointLight*) 0) {
 			//trace a photon through the scene and store all the hits in a kd tree - how to go through specular objects only?
-			c_trace(photon, objects, 6, c_nodes1);
-
-			for (int i = 0; i == c_nodes1.size(); i++) {
-				c_nodes.push_back(c_nodes1[i]); //adds all photon hits to a tree
+			Photon *photon = new Photon(*light, no_of_photons);
+			if (n < 100000) {
+			// First 20k: aim at sphere center
+			Vector temp = Vector(-0.2, -0.2, 1.8);
+			temp.normalise();
+			photon->direction = temp;
+			} else if (n < 200000) {
+				Vector temp = Vector(0.8, 0.8, 2.8);
+				temp.normalise();
 			}
-			lights = lights->next;
+			photon_trace(photon, 5);
+			light = light->next;
+		}
+		light = light_list;
+		if (n % 1000 == 0) { 
+			std::cerr << "+" << flush;
 		}
 	}
+
+	std::cout << "causticPhotons.size: " << causticPhotons.size() << std::endl;
+	std::cout << "globalPhotons.size: " << globalPhotons.size() << std::endl;
+
+	if (!causticPhotons.empty()) {
+		delete causticTree;                        // in case it existed
+		causticTree = new KDTree(causticPhotons);  // build once
+	}
+
+	if (!globalPhotons.empty()) {
+		delete globalTree;                        // in case it existed
+		globalTree = new KDTree(globalPhotons);  // build once
+	}
+
+
 }
 
-
-/// returns the depth and colour of the closest intersection between ray and the list of objects via classic Whitted-style ray tracing with global and caustic photon mapping 
-void render(Ray ray, Object *objects, Light *lights, Colour &colour, float &depth, int ref_limit) {
-				//Raytrace to get closest object
-
-			Colour L_l, L_s, L_c, L_d, L_0, L_e;
-			Hit best_hit;
-
-			Object *obj = objects;
-			Light *light = lights;
-
-			object_intersection(ray, obj, best_hit);
-
-			Vector L_i, V;
-
-			L_e.r = 0;
-			L_e.g = 0;
-			L_e.b = 0;
-
-			//is the hit point a light source?
-			while (light != (Light*) 0) {
-
-				if (light->point.x == best_hit.position.x
-						&& light->point.y == best_hit.position.y
-						&& light->point.z == best_hit.position.z) //if the hit position is on a light, then it emits radiance
-								{
-					L_e.r += light->intensity.r; //addition in case two lights are in the same position (unlikely)
-					L_e.g += light->intensity.g;
-					L_e.b += light->intensity.b;
-				}
-				light = light->next;
-			}
-
-			L_0 = L_e;
-
-			//DIRECT - L_l
-			raytrace(ray, obj, light, L_l, depth, best_hit);
-
-			L_l.r *= (best_hit.what->material->BRDF_s.r + best_hit.what->material->BRDF_d.r) * (-1* (pl->direction).dot(best_hit.normal));
-			L_l.g *= (best_hit.what->material->BRDF_s.g + best_hit.what->material->BRDF_d.g) * (-1* (pl->direction).dot(best_hit.normal));
-			L_l.b *= (best_hit.what->material->BRDF_s.b + best_hit.what->material->BRDF_d.b) * (-1* (pl->direction).dot(best_hit.normal));
-
-			//SPECULAR - L_s
-			if (best_hit.what->material->reflective) //material supports reflection
-			{
-				Ray R;
-				float kr, ref_depth;
-				Hit rhit;
-
-				//calculate reflected eye ray
-				R.direction = ray.direction
-						- 2 * ((best_hit.normal).dot(ray.direction))
-								* best_hit.normal;
-
-				R.position.x = best_hit.position.x + 0.001 * R.direction.x;
-				R.position.y = best_hit.position.y + 0.001 * R.direction.y;
-				R.position.z = best_hit.position.z + 0.001 * R.direction.z;
-
-				object_intersection(R, obj, rhit); //tests if there is an object to be reflected in the surface
-
-				if (rhit.flag)
-				{
-					Hit ref_hit;
-					raytrace(R, obj, pl, L_s, ref_depth, ref_hit);
-
-					L_s.r *= best_hit.what->material->BRDF_s.r * (-1* (pl->direction).dot(best_hit.normal));
-					L_s.g *= best_hit.what->material->BRDF_s.g * (-1* (pl->direction).dot(best_hit.normal));
-					L_s.b *= best_hit.what->material->BRDF_s.b * (-1* (pl->direction).dot(best_hit.normal));
-				}
-			} else {
-				L_s.r = 0;
-				L_s.g = 0;
-				L_s.b = 0;
-			}
-
-			//CAUSTICS - L_c
-
-			//create a photon map
-			Kdtree::KdNodeVector nodes;
-			c_photon_map(sphere, pl, 6, nodes);
-
-			//create kd tree
-			Kdtree::KdTree c_tree(&nodes);
-
-			Kdtree::KdNodeVector c_nodes_knn;
-			std::vector<double> v;
-
-			v[0] = best_hit.position.x;
-			v[1] = best_hit.position.y;
-			v[2] = best_hit.position.z;
-
-			const std::vector<double> v0 = v;
-
-			c_tree.k_nearest_neighbors(v0, 50, c_nodes_knn);
-
-			float r; //get radius of the sphere from max distance between best_hit.position and rest of nodes
-			float a, b, c, d, max_d = 0;
-
-			for (int i = 0; i == c_nodes_knn.size(); i++) //finds max distance
-					{
-				a = best_hit.position.x - c_nodes_knn[i].point[0];
-				b = best_hit.position.y - c_nodes_knn[i].point[1];
-				c = best_hit.position.z - c_nodes_knn[i].point[2];
-				d = sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
-
-				if (d > max_d)
-				{
-					max_d = d;
-				}
-			}
-
-			r = max_d;
-
-			float dA = M_PI * pow(r, 2); //area of disc associated with sphere of radius r
-
-			for (int i = 0; i == 49; i++) //each photon in sphere
-					{
-				Photon *p = new Photon();
-				p = c_nodes_knn[i].data;
-
-				//divide flux that photon represents by area of s and multiply by photon's BDRF to get radiance here
-				L_c.r += p->BRDF_d.r * (p->intensity.r) * (-1* (p->direction).dot(best_hit.normal));
-				L_c.g += p->BRDF_d.g * (p->intensity.g) * (-1* (p->direction).dot(best_hit.normal));
-				L_c.b += p->BRDF_d.b * (p->intensity.b) * (-1* (p->direction).dot(best_hit.normal));
-			}
-			L_c.r *= 1/dA;
-			L_c.g *= 1/dA;
-			L_c.b *= 1/dA;
-
-			//SOFT INDIRECT - L_d
-
-			//create a photon map
-			Kdtree::KdNodeVector nodes1;
-			g_photon_map(sphere, pl, 6, nodes1);
-
-			//create kd tree
-			Kdtree::KdTree g_tree(&nodes1);
-
-			Kdtree::KdNodeVector g_nodes_knn;
-
-			g_tree.k_nearest_neighbors(v0, 50, g_nodes_knn);
-
-			for (int i = 0; i == g_nodes_knn.size(); i++) //finds max distance
-					{
-				a = best_hit.position.x - g_nodes_knn[i].point[0];
-				b = best_hit.position.y - g_nodes_knn[i].point[1];
-				c = best_hit.position.z - g_nodes_knn[i].point[2];
-				d = sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
-
-				if (d > max_d) {
-					max_d = d;
-				}
-			}
-
-			r = max_d;
-
-			dA = M_PI * pow(r, 2); //area of disc associated with sphere
-
-			//find where the photons came from
-			vector<Ray> nxt_rays;
-
-			for (int i = 0; i == 49; i++) {
-				Photon *p;
-
-				p = g_nodes_knn[i].data;
-
-				L_d.r += p->BRDF_d.r * (p->intensity.r) * (-1* (p->direction).dot(best_hit.normal));
-				L_d.g += p->BRDF_d.g * (p->intensity.g) * (-1* (p->direction).dot(best_hit.normal));
-				L_d.b += p->BRDF_d.b * (p->intensity.b) * (-1* (p->direction).dot(best_hit.normal));
-
-				nxt_rays[i].position.x = g_nodes_knn[i].point[0];
-				nxt_rays[i].position.y = g_nodes_knn[i].point[1];
-				nxt_rays[i].position.z = g_nodes_knn[i].point[2];
-				nxt_rays[i].direction = p->direction; //direction the photon came from
-			}
-
-			L_d.r *= 1/dA;
-			L_d.g *= 1/dA;
-			L_d.b *= 1/dA;
-
-			vector<float> kr;
-
-			for (int k = 0; k == nxt_rays.size(); k++) {
-				kr[k] = best_hit.what->material->kr; //BRDF?
-			}
-			//store the intensity at this point, multiply by kr of the object
-
-			//use importance sampling to decide which to follow and then resample at the next hit point (reflection)
-
-			//bounce limit for photons
-			int ref_limit = 3;
-
-			Colour col, L_g_ref; //global reflections colour, will then be added onto L_d.
-			float g_depth;
-			Hit nxt_hit;
-
-			while (ref_limit > 0) {
-				for (int k = 0; k == nxt_rays.size(); k++) //ideally for imp_rays
-				{
-					object_intersection(nxt_rays[k], obj, nxt_hit); //get next hit point of each ray
-
-					//do k nearest neighbours sampling again, but scale each reflection by kr (BRDF?) and add them all together
-					Kdtree::KdNodeVector g_nodes_knn_1;
-
-					std::vector<double> v1;
-
-					v1[0] = nxt_hit.position.x;
-					v1[1] = nxt_hit.position.y;
-					v1[2] = nxt_hit.position.z;
-
-					const std::vector<double> v2;
-
-					g_tree.k_nearest_neighbors(v2, 50, g_nodes_knn_1);
-
-					float r; //get radius of the sphere from max distance between best_hit.position and rest of nodes
-					float a, b, c, d, max_d = 0;
-
-					for (int i = 0; i == g_nodes_knn_1.size(); i++) //finds max distance
-					{
-
-						a = best_hit.position.x - g_nodes_knn_1[i].point[0];
-						b = best_hit.position.y - g_nodes_knn_1[i].point[1];
-						c = best_hit.position.z - g_nodes_knn_1[i].point[2];
-						d = sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
-
-						if (d > max_d)
-						{
-							max_d = d;
-						}
-					}
-
-					r = max_d;
-
-					float dA;
-					dA = M_PI * pow(r, 2); //area of disc associated with sphere
-
-					//now work out average colour
-					for (int i = 0; i == 49; i++)
-					{
-						Photon *p;
-
-						p = g_nodes_knn_1[i].data;
-
-						col.r += kr[k] * p->BRDF * (p->intensity.r) * (-1* (p->direction).dot(best_hit.normal));
-						col.g += kr[k] * p->BRDF * (p->intensity.g) * (-1* (p->direction).dot(best_hit.normal));
-						col.b += kr[k] * p->BRDF * (p->intensity.b) * (-1* (p->direction).dot(best_hit.normal));
-
-						nxt_rays[i].position.x = g_nodes_knn_1[i].point[0];
-						nxt_rays[i].position.y = g_nodes_knn_1[i].point[1];
-						nxt_rays[i].position.z = g_nodes_knn_1[i].point[2];
-						nxt_rays[i].direction = p->direction; //direction the photon came from
-					}
-
-					col.r *= 1/dA;
-					col.g *= 1/dA;
-					col.b *= 1/dA;
-
-					//get next kr value
-					kr[k] = nxt_hit.what->material->kr;
-
-					ref_limit -= 1;
-				}
-				L_d.r += col.r;
-				L_d.g += col.g;
-				L_d.b += col.b;
-			}
-			//TOTAL
-			colour.r = L_e.r + L_l.r + L_s.r + L_c.r + L_d.r;
-			colour.g = L_e.g + L_l.g + L_s.g + L_c.g + L_d.g;
-			colour.b = L_e.b + L_l.b + L_s.b + L_c.b + L_d.b;
-}
-*/

@@ -40,10 +40,25 @@ public:
 		a *= scaling.a;
 	}
 
+		void scale(float &scaling)
+	{
+		r *= scaling;
+		g *= scaling;
+		b *= scaling;
+		a *= scaling;
+	}
+
 	void add(Colour &adjust)
 	{
 		r += adjust.r;
 		g += adjust.g;
 		b += adjust.b;
+	}
+
+		void add(float &adjust)
+	{
+		r += adjust;
+		g += adjust;
+		b += adjust;
 	}
 };

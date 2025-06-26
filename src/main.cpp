@@ -1,7 +1,8 @@
-// g++ -o mainexecutable main.cpp framebuffer.cpp polymesh.cpp directional_light.cpp sphere.cpp phong.cpp scene.cpp -lm
+// g++ -o mainexecutable main.cpp framebuffer.cpp polymesh.cpp directional_light.cpp sphere.cpp phong.cpp scene.cpp point_light.cpp photon.cpp -lm
 // ./mainexecutable
 
 #include <iostream>
+#include <ctime>
 
 #include "hit.h"
 #include "ray.h"
@@ -9,21 +10,36 @@
 #include "transform.h"
 #include "polymesh.h"
 #include "directional_light.h"
+#include "point_light.h"
 #include "phong.h"
 #include "sphere.h"
 #include "scene.h"
 
 int main() {
 
+	// Get the timestamp for the current date and time
+	time_t timestamp;
+	time(&timestamp);
+
+	// Display the date and time represented by the timestamp
+	cout << ctime(&timestamp);
+
     // create a framebuffer
-    int width = 1280;
-	int height = 1280;
+    int width = 200; 
+	int height = 200; // 1280
     FrameBuffer *fb = new FrameBuffer(width,height);
+
+	srand (time(NULL)); //initialises random seed
 
 	//create a scene 
 	Scene scene = Scene();
 	//scene.test();
 	scene.teapot_box();
+	scene.create_photon_maps();
+	
+	printf("we have created photon maps!");
+
+	
 
     // create a ray starting at (0,0,0) to use for the camera
 	Ray ray;
@@ -47,17 +63,28 @@ int main() {
 			Colour colour;
 			float depth = 0;
 
+			Hit h = Hit();
+
             // do a raytrace
-			scene.raytrace(ray, colour, depth, 4);
+			scene.raytrace(ray, colour, depth, 4, h);
 
             // plot it in the framebuffer
 			fb->plotPixel(x, y, colour.r, colour.g, colour.b);
 			fb->plotDepth(x,y, depth);
 		}
-		std::cerr << "*" << flush;
+		if (y % 10 == 0) {
+			time(&timestamp);
+			cout << ctime(&timestamp);
+		}
+		std::cerr << "Progress: " << y << "/" << height << "\n" << flush;
 	}
 	// write framebuffer to a ppm file
 	fb->writeRGBFile((char *)"test.ppm");
+
+	time(&timestamp);
+
+	// Display the date and time represented by the timestamp
+	cout << ctime(&timestamp);
 	printf("finished");
 	return 0;
 }

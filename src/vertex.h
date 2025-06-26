@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <cmath>
+
 class Vertex {
 public:
 	float x;
@@ -37,4 +39,19 @@ public:
 		z = pz;
 		w = 1.0f;
 	}
+
+	void sub(Vertex &other)
+	{
+	  x -= other.x;
+	  y -= other.y;
+	  z -= other.z;
+	}
+
+	float distance(Vertex &other) const{
+		float a = other.x - x;
+		float b = other.y - y;
+		float c = other.z - z;
+		return sqrt(a*a + b*b + c*c);
+	}
+
 };
