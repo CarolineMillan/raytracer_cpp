@@ -14,7 +14,6 @@
 
 void Phong::compute_base_colour(Colour &result)
 {
-	//printf("hello");
 	result.r = ambient.r;
 	result.g = ambient.g;
 	result.b = ambient.b;
@@ -46,16 +45,11 @@ void Phong::compute_light_colour(Vector &viewer, Vector &normal, Vector &ldir, C
 	}
 
 	// diffuse
-
 	result.r += diffuse.r * diff;
 	result.g += diffuse.g * diff;
 	result.b += diffuse.b * diff;
 
-	//std::cout << "diff: " << diff << std::endl;
-	//std::cout << "phong diffuse, r: " << diffuse.r << ", g: " << diffuse.g << ", b: " << diffuse.b << std::endl;
-
 	// the specular component
-
 	Vector r;
 	
 	normal.reflection(tolight, r);

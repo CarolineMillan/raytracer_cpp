@@ -47,12 +47,7 @@ public:
 	{
 	  return(float)sqrt((double)(x*x + y*y + z*z));
 	}
-	/*
-	float dot(Vector &other)
-	{
-		return x*other.x + y*other.y + z*other.z;
-	}
-	*/
+
 	float dot(Vector other)
 	{
 		return x*other.x + y*other.y + z*other.z;
@@ -118,14 +113,6 @@ public:
 	  		z = other.z;
 		}
 		return *this;
-		
-		/*
-	  Vector t;
-	  t.x = other.x;
-	  t.y = other.y;
-	  t.z = other.z;
-	  return t;
-	  */
 	}
 
 	friend Vector operator+(const Vector &a, const Vector &b)

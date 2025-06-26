@@ -52,11 +52,10 @@ Scene::~Scene() {
     globalPhotons.clear();
 }
 
-/*
+
+/// A NICE SCENE -- TEAPOT AND SPHERE INSIDE AN OPEN BOX
 void Scene::teapot_box() {
 	
-	/// A NICE SCENE -- TEAPOT AND SPHERE INSIDE AN OPEN BOX
-
 	// The following transform allows 4D homogeneous coordinates to be transformed. It moves the supplied teapot model to somewhere visible.
 	Transform *transform = new Transform(1.0f, 0.0f, 0.0f,  0.0f,
 			0.0f, 0.0f, 1.0f, -2.7f,
@@ -65,186 +64,6 @@ void Scene::teapot_box() {
 
 	//  Read in the teapot model.
 	PolyMesh *pm = new PolyMesh((char *)"teapot_smaller.ply", transform);
-	//objects->next = pm;
-
-	//creates Phong surface illumination model for polymesh
-
-	// rgb(244, 250, 252)
-	//Phong glass; 
-	glass.ambient = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
-	glass.diffuse = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
-	glass.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	glass.power = 40.0f;
-
-    //Phong bp1; 
-	// rgb(211, 141, 255)
-	mat_pm.ambient = Colour(211.0/255.0, 141.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_pm.diffuse = Colour(211.0/255.0, 141.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_pm.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_pm.power = 40.0f;
-
-	// rgb(255, 252, 230)
-	//Phong bp2;
-	mat_wall2.ambient = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
-	mat_wall2.diffuse = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
-	mat_wall2.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall2.power = 40.0f;
-
-	// rgb(247, 198, 198)
-	//Phong bp3;
-	mat_wall3.ambient = Colour(247.0/255.0, 198.0/255.0, 198.0/255.0, 255.0/255.0);
-	mat_wall3.diffuse = Colour(247.0/255.0, 198.0/255.0, 198.0/255.0, 255.0/255.0);
-	mat_wall3.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall3.power = 40.0f;
-
-	// rgb(199, 247, 198)
-	//Phong bp4;
-	mat_wall4.ambient = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
-	mat_wall4.diffuse = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
-	mat_wall4.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall4.power = 40.0f;
-
-	// rgb(198, 242, 247)
-	//Phong bp5;
-	mat_wall5.ambient = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
-	mat_wall5.diffuse = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
-	mat_wall5.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall5.power = 40.0f;
-
-	// rgb(255, 176, 249)
-	//Phong bp6;
-	mat_wall6.ambient = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
-	mat_wall6.diffuse = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
-	mat_wall6.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall6.power = 40.0f;
-
-	// rgb(180, 169, 245)
-	//Phong bp7;
-	mat_wall7.ambient = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
-	mat_wall7.diffuse = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
-	mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall7.power = 40.0f;
-
-	float scaling = 1.0/M_PI;
-
-    pm->material = &glass;
-    pm->material->transparent = true;
-    pm->material->reflective = true;
-	pm->material->eta = 1.5; //glass refractive index
-	pm->material->kr = 0.4;
-	pm->material->BRDF_d = glass.diffuse;
-	pm->material->BRDF_d.scale(scaling);
-
-    Vertex v;
-	v.x = 1.0f;
-	v.y = 1.0f;
-	v.z = 3.0f;
-    Sphere *sphere = new Sphere(v, 1.0f);
-
-    sphere->material = &mat_pm;
-    sphere->material->transparent = false;
-    sphere->material->reflective = false;
-	sphere->material->eta = 1.5; //glass refractive index
-	sphere->material->kr = 0.4;
-	sphere->material->BRDF_d = mat_pm.diffuse;
-	sphere->material->BRDF_d.scale(scaling); // mat_sphere.diffuse;
-
-    
-	//sphere->next = nullptr;
-
-	/// put the scene in a box -- maybe only have 4/5 walls for light, see how it goes
-	// rewrite this as a loop when you incorporate scene.cpp
-
-	PolyMesh *fl = new PolyMesh((char *)"square.ply");
-	PolyMesh *ce = new PolyMesh((char *)"ceiling.ply");
-	PolyMesh *w1 = new PolyMesh((char *)"wall1.ply");
-	PolyMesh *w2 = new PolyMesh((char *)"wall2.ply");
-	PolyMesh *w3 = new PolyMesh((char *)"wall3.ply");
-	PolyMesh *w4 = new PolyMesh((char *)"wall4.ply");
-
-	
-	fl->material = &mat_wall2;
-    fl->material->transparent = false;
-    fl->material->reflective = false;
-	fl->material->BRDF_d = mat_wall2.diffuse;
-	fl->material->BRDF_d.scale(scaling);
-	fl->material->kr = 0.4;
-
-	ce->material = &mat_wall3;
-    ce->material->transparent = false;
-    ce->material->reflective = false;
-	ce->material->BRDF_d = mat_wall3.diffuse;
-	ce->material->BRDF_d.scale(scaling);
-	ce->material->kr = 0.4;
-
-	w1->material = &mat_wall4;
-    w1->material->transparent = false;
-    w1->material->reflective = false;
-	w1->material->BRDF_d = mat_wall4.diffuse;
-	w1->material->BRDF_d.scale(scaling);
-	w1->material->kr = 0.4;
-
-	w2->material = &mat_wall5;
-    w2->material->transparent = false;
-    w2->material->reflective = false;
-	w2->material->BRDF_d = mat_wall5.diffuse;
-	w2->material->BRDF_d.scale(scaling);
-	w2->material->kr = 0.4;
-	
-	w3->material = &mat_wall6;
-    w3->material->transparent = false;
-    w3->material->reflective = false;
-	w3->material->BRDF_d = mat_wall6.diffuse;
-	w3->material->BRDF_d.scale(scaling);
-	w3->material->kr = 0.4;
-
-	w4->material = &mat_wall7;
-    w4->material->transparent = false;
-    w4->material->reflective = false;
-	w4->material->BRDF_d = mat_wall7.diffuse;
-	w4->material->BRDF_d.scale(scaling);
-	w4->material->kr = 0.4;
-
-	//object_list = pm;
-	object_list = pm;
-	object_list->next = sphere;
-	sphere->next = fl;
-	fl->next = ce;
-	ce->next = w1;
-	w1->next = w2;
-	w2->next = w3;
-	w3->next = w4;
-	w4->next = nullptr;
-
-	// creates a light source
-	Vertex v1 = Vertex(-1.0, -1.0, -1.0);
-	Colour c = Colour(1.0, 1.0, 1.0, 1.0);
-	Vector d = Vector(0.1, 0.1, 0.1);
-	PointLight *pl = new PointLight(v1, c, d);
-	pl->next = nullptr;
-
-	// FIXME -- define object_list and light_list
-	
-	light_list = pl;
-	light_list->next = nullptr;
-
-}
-*/
-
-
-void Scene::teapot_box() {
-	
-	/// A NICE SCENE -- TEAPOT AND SPHERE INSIDE AN OPEN BOX
-
-	// The following transform allows 4D homogeneous coordinates to be transformed. It moves the supplied teapot model to somewhere visible.
-	Transform *transform = new Transform(1.0f, 0.0f, 0.0f,  0.0f,
-			0.0f, 0.0f, 1.0f, -2.7f,
-			0.0f, 1.0f, 0.0f, 5.0f,
-			0.0f, 0.0f, 0.0f, 1.0f);
-
-	//  Read in the teapot model.
-	PolyMesh *pm = new PolyMesh((char *)"teapot_smaller.ply", transform);
-	//objects->next = pm;
 
 	//creates Phong surface illumination model for polymesh
 
@@ -342,10 +161,8 @@ void Scene::teapot_box() {
 	sphere->material->kr = 0.4;
 
     pm->next = sphere;
-	//sphere->next = nullptr;
 
-	/// put the scene in a box -- maybe only have 4/5 walls for light, see how it goes
-	// rewrite this as a loop when you incorporate scene.cpp
+	/// put the scene in a box 
 
 	Transform *t = new Transform();
 
@@ -390,10 +207,6 @@ void Scene::teapot_box() {
 	w4->next = nullptr;
 
 	//creates a light source
-    //DirectionalLight *dl = new DirectionalLight(Vector(0.01f, 0.01f, 1.0f),Colour(1.0f, 1.0f, 1.0f, 1.0f)); 
-	//lights->next = dl;
-	//dl->next = nullptr; 
-
 	Vertex v1 = Vertex(0.2, 0.2, 0.2);
 	Colour c = Colour(1.0f, 1.0f, 1.0f, 1.0f);
 	Vector d = Vector(0.01f, 0.01f, 1.0f);
@@ -401,20 +214,11 @@ void Scene::teapot_box() {
 
 	PointLight *pl = new PointLight(v1, c, d);
 
-	// FIXME -- define object_list and light_list
+	// define object_list and light_list
 	object_list = pm;
 	object_list->next = sphere;
 	light_list = pl;
 	light_list->next = nullptr;
-
-	std::cout << "pm: " << pm << std::endl;
-	std::cout << "sphere: " << sphere << std::endl;
-	std::cout << "fl: " << fl << std::endl;
-	std::cout << "ce: " << ce << std::endl;
-	std::cout << "w1: " << w1 << std::endl;
-	std::cout << "w2: " << w2 << std::endl;
-	std::cout << "w3: " << w3 << std::endl;
-	std::cout << "w4: " << w4 << std::endl;
 }
 
 
@@ -582,13 +386,10 @@ void Scene::refract_ray(const Ray &incoming, Hit &hit, Ray &refracted, bool &tot
 	float cos_theta_i = fabs(n.dot(-1*d));
 
 	// test here for total_internal_reflection
-
 	float cos_theta_t = sqrt(1.0 - ( 1.0 / (pow(eta,2.0) ) ) * ( 1.0 - pow(cos_theta_i,2.0) ) );
-	//cos_theta_t = sqrt(1.0f - sin2_t);
 
 	if(cos_theta_t >= 0) {
 
-		// should I use n insteaed of hit.normal?
 		refracted.direction = (1/eta)*incoming.direction - (cos_theta_t - (1/eta)*cos_theta_i)*hit.normal;
 
 		refracted.position.x = hit.position.x + 0.001*refracted.direction.x;
@@ -604,10 +405,6 @@ void Scene::refract_ray(const Ray &incoming, Hit &hit, Ray &refracted, bool &tot
 	else {
 		total_internal_reflection = true;
 	}
-	//this is the value needed for reflection in this surface at this point
-	// it is used in the reflection section
-	//hit.what->material->kr = kr;
-	//hit.what->material->kt = kt;
 }
 
 
@@ -626,25 +423,23 @@ void Scene::reflect_ray(const Ray &incoming, Hit &hit, Ray &reflected) {
 }
 
 
-Colour Scene::gather_diffuse(const Hit best_hit, const vector<Photon*> globalNeighbours) {
+Colour Scene::gather_diffuse(const Hit hit, const vector<Photon*> globalNeighbours) {
 
 	Colour diffuse = Colour();
 	float r=0; //get radius of the sphere from max distance between best_hit.position and rest of nodes
 	float d=0, dA=0; 
 
-	//find where the photons came from
-	vector<Ray> initial_rays;
-
 	for (Photon* p : globalNeighbours) {
 
-		float dot = -1.0* (p->direction).dot(best_hit.normal);
+		float dot = -1.0* (p->direction).dot(hit.normal);
 
-		diffuse.r += p->BRDF_d.r * (p->intensity.r) * dot;
-		diffuse.g += p->BRDF_d.g * (p->intensity.g) * dot;
-		diffuse.b += p->BRDF_d.b * (p->intensity.b) * dot;
+		Colour temp = p->BRDF_d;
+		temp.scale(p->intensity);
+		temp.scale(dot);
+		diffuse.add(temp);
 
 		//find max distance
-		d = best_hit.position.distance(p->position);
+		d = hit.position.distance(p->position);
 		if (d > r) r = d;
 	}
 
@@ -653,11 +448,6 @@ Colour Scene::gather_diffuse(const Hit best_hit, const vector<Photon*> globalNei
 		float scaling = (1.0/dA);
 		diffuse.scale(scaling);
 	}
-
-	if (diffuse.r != 0 || diffuse.g != 0 || diffuse.b != 0) {
-		//std::cout << "diffuse: " << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << std::endl;
-	}
-
 	return diffuse;
 }
 
@@ -688,11 +478,9 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 	// if we found a primitive then compute the colour we should see
 	if(best_hit.flag) {
 
-		//std::cout << "colour 1: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 		// get colour of the material we've hit
 		best_hit.what->material->compute_base_colour(colour);
 
-		//std::cout << "colour 2: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 		// get the depth of the object
 		depth = best_hit.t;
 
@@ -713,23 +501,14 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 			//is best_hit hit by the light?
 			bool lit;
 			lit = light->get_direction(best_hit.position, ldir); 
-			//std::cout << "lit: " << lit << std::endl;
 
-			if(ldir.dot(best_hit.normal)>0)	{
-				lit=false;//light is facing wrong way.
-			}
+			if(ldir.dot(best_hit.normal)>0)	lit=false; //light is facing wrong way.
+
 			if(lit) {
 				// create a "shadow ray" from best_hit to the light source
 				// if it intersects anything, then the point is in shadow
 				
 				Ray shadow_ray;
-
-				// you want this to be the vector from the hit point to the point light
-				// ie pl - best_hit.position
-
-				//shadow_ray.direction.x = light->point.x - best_hit.position.x;
-				//shadow_ray.direction.y = light->point.y - best_hit.position.y;
-				//shadow_ray.direction.z = light->point.z - best_hit.position.z;
 
 				shadow_ray.direction.x = -ldir.x;
 				shadow_ray.direction.y = -ldir.y;
@@ -739,63 +518,17 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 				shadow_ray.position.y = best_hit.position.y + (0.0001f * shadow_ray.direction.y);
 				shadow_ray.position.z = best_hit.position.z + (0.0001f * shadow_ray.direction.z);
 
-				// debug: print where the shadow ray goes, its t‐limit, and what it hits
-				/* std::cout
-				<< " ShadowRay from (" << best_hit.position.x << ","
-										<< best_hit.position.y << ","
-										<< best_hit.position.z << ") "
-				<< "dir (" << shadow_ray.direction.x << ","
-							<< shadow_ray.direction.y << ","
-							<< shadow_ray.direction.z << ") "
-				<< "\n"; */
-
 				auto temp = best_hit.position;
 				float dist = temp.distance(light->point);
 
-				/* std::cerr
-					<< " Shadow test: origin=("
-					<< shadow_ray.position.x << ","
-					<< shadow_ray.position.y << ","
-					<< shadow_ray.position.z << ") dir=("
-					<< shadow_ray.direction.x << ","
-					<< shadow_ray.direction.y << ","
-					<< shadow_ray.direction.z << ") "
-					<< "dist-to-light=" << dist
-					<< "  t_hit=" << shadow_hit.t
-					<< "ldir: "
-					<< ldir.x << ", "
-					<< ldir.y << ", "
-					<< ldir.z << ", "
-					<< "\n"; */
-
-
-
 				object_intersection(shadow_ray, shadow_hit);
 
-				//std::cout << "shadow_hit.what: " << shadow_hit.what << std::endl;
-				//std::cout << "shadow_hit.position: " << shadow_hit.position.x << ", " << shadow_hit.position.y << ", " << shadow_hit.position.z  << std::endl;
-				//std::cout << "shadow_hit.t: " << shadow_hit.t << std::endl;
-
-				
-
-				//std::cout << "dist: " << dist << std::endl;
-
-
-
 				//there's a shadow so no lighting, if  the hit is closer than the point light
-				if(shadow_hit.flag && (shadow_hit.t < dist)) { //1000000000.0f) {
-					lit = false;
-					//printf("0");
-				}
-				else {
-					//printf("1");
-				}
-
+				if(shadow_hit.flag && (shadow_hit.t < dist)) lit = false;
 			}
+
 			//do colour
 			if (lit) {
-
-				//printf("we are lit!!");
 				Colour intensity;
 				Colour scaling;
 
@@ -807,28 +540,21 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 
 				//add intensity to the colour
 				colour.add(intensity);
-				//std::cout << "colour 3: " << colour.r << ", " << intensti.g << ", " << intensity.b << std::endl;
 				}
 			// move on to the next light
 			light = light->next;
 		}
 		
-		//std::cout << "colour 3: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 		// generate secondary ray (reflection and/or refraction)
 		// ref_limit stops infinite recursion
 		// this is some L_s, specular
 		if(best_hit.what->material->transparent)
 		{
-			//std::cout << "in transparent" << std::endl;
 			Ray refracted;
 			bool total_internal_reflection = false;
 
 			refract_ray(ray, best_hit, refracted, total_internal_reflection);
 
-			// I dont think you need to save these values here, but just in case something goes wrong try uncommenting this
-			//float kt = best_hit.what->material->kt;
-			//float kr = best_hit.what->material->kr;
-			
 			if (!total_internal_reflection) {
 				Colour trans_colour;
 				float trans_depth;
@@ -847,8 +573,6 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 			}
 
 		}
-
-		//std::cout << "colour 4: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 
 		// compute reflection ray if material supports it.
 		// this is more L_s, specular
@@ -874,8 +598,6 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 				//get colour of reflection 
 				raytrace(reflected, ref_colour, ref_depth, ref_limit, h); 
 
-				//kr = best_hit.what->material->kr;
-
 				//scale by kr
 				ref_colour.scale(best_hit.what->material->kr);
 
@@ -884,7 +606,6 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 			}
 		}
 		
-		//std::cout << "colour 5: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 		// add photon map checks here
 
 		// this is L_c, caustic
@@ -893,50 +614,15 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 			vector<Photon*> causticNeighbours;
 			causticTree->kNearest(best_hit.position, 50, causticNeighbours);
 
-			//std::cout << "causticNeighbours.size: " << causticNeighbours.size() << std::endl;
-			//printf("out of knearest");
-			Colour caustic = Colour();
+			//use gather_diffuse() to get the colour here instead 
+			Colour caustic = gather_diffuse(best_hit, causticNeighbours);
 
-			float r = 0.0f; //get radius of the sphere from max distance between best_hit.position and rest of nodes
-			float d=0.0f; //, max_d = 0;
-
-			//each photon in sphere
-			for (Photon* p : causticNeighbours) {
-
-				//find colour
-				float dot = -1.0f * p->direction.dot(best_hit.normal);
-				
-				// need temp because we're in a for loop and don't want to overwrite caustic each iteration
-				Colour temp = p->BRDF_d;
-				temp.scale(p->intensity);
-				temp.scale(dot);
-
-				caustic.add(temp);
-
-				//find max distance 
-				d = best_hit.position.distance(p->position);
-				//std::cout<< "d: " << d << std::endl;
-				if (d > r) r = d;
-			}
-			//std::cout<< "r: " << r << std::endl;
-			float dA = M_PI * r * r; //area of disc associated with sphere of radius r
-			//normalise by the disc area (check it's positive maybe? FIXME)
-			if (r>0) { 
-				float scaling = 1.0/dA;
-				caustic.scale(scaling); 
-			}
-			float photonBoost = 100.0f;             // try 10, 100, 1000…
+			float photonBoost = 1000.0f;             // try 10, 100, 1000…
 			Colour boosted = caustic;
 			boosted.scale(photonBoost);
 			colour.add(boosted);
-
-			//colour.add(caustic);
-			if (caustic.r != 0 || caustic.g != 0 || caustic.b != 0) {
-				//std::cout << "caustic: " << caustic.r << ", " << caustic.g << ", " << caustic.b << std::endl;
-			}
 		}
 
-		//std::cout << "colour 6: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 		// this is L_d, diffuse
 
 		if (globalTree) {
@@ -945,12 +631,10 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 			globalTree->kNearest(best_hit.position, 5, globalNeighbours);
 
 			Colour diffuse = gather_diffuse(best_hit, globalNeighbours);
-			float photonBoost = 100.0f;             // try 10, 100, 1000…
+			float photonBoost = 1000.0f;             // try 10, 100, 1000…
 			Colour boosted = diffuse;
 			boosted.scale(photonBoost);
 			colour.add(boosted);
-
-			//colour.add(diffuse);
 
 			// get rays -- TODO look into emplace_back() instead
 			vector<Ray> current_rays;
@@ -958,16 +642,12 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 				Ray new_r = Ray(p->position, p->direction);
 				current_rays.push_back(new_r);
 			}
-			// ----------------------------------------------
-
 			//store the intensity at this point, multiply by kr of the object
 
 			//use importance sampling to decide which to follow and then resample at the next hit point (reflection)
 
 			//bounce limit for photons
 			int bounce_limit = 3;
-			
-
 			while (bounce_limit > 0 && !current_rays.empty()) {
 
 				bounce_limit--;
@@ -996,23 +676,16 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 						nxt_rays.push_back(new_r);
 					}
 				}
-				float photonBoost = 100.0f;             // try 10, 100, 1000…
+				float photonBoost = 1000.0f;             // try 10, 100, 1000…
 				Colour boosted = diffuse_reflection;
 				boosted.scale(photonBoost);
 				colour.add(boosted);
 
-				//colour.add(diffuse_reflection);
 				current_rays.swap(nxt_rays);
-				if (diffuse_reflection.r != 0 || diffuse_reflection.g != 0 ||diffuse_reflection.b != 0 ) {
-					//std::cout << "diffuse_reflection: " << diffuse_reflection.r << ", " << diffuse_reflection.g << ", " << diffuse_reflection.b << std::endl;
-				}
-			}
-			if (diffuse.r != 0 || diffuse.g != 0 || diffuse.b != 0) {
-				//std::cout << "diffuse: " << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << std::endl;
+
 			}
 		}
 	
-		//std::cout << "colour 7: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
 	} else {
 		// colour = background_colour
 		// I like rgb(163, 249, 255)
@@ -1021,8 +694,7 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 		colour.b = 255.0/255.0;
 		depth = 7.0f;
 	}
-	
-	//std::cout << "colour 8: " << colour.r << ", " << colour.g << ", " << colour.b << std::endl;
+
 	return;
 }
 
@@ -1031,54 +703,30 @@ void Scene::raytrace(Ray ray, Colour &colour, float &depth, int ref_limit, Hit &
 //traces a single photon through the scene, saves them in causticPhotons and globalPhotons
 void Scene::photon_trace(Photon *photon, int ref_limit) {
 
-	//printf("1");
-
 	bool saw_specular = false;
 	Ray photon_ray;
 	photon->ray(photon_ray);
 
-	//printf("2");
 	// loop starts here
 	// do you use ref_limit or photon->absorbed and russian roulette?
-	// what is ref_limit used for here?
 	while (ref_limit > 0) {
 		
-		/*if (ref_limit < 5) {
-			std::cout << "ref_limit: " << ref_limit << std::endl;
-			std::cout << "first saw_specular: " << saw_specular << std::endl;
-			
-		}*/
-
-		
 		ref_limit--;
-		//printf("3a");
 		Hit best_hit;
 		object_intersection(photon_ray, best_hit); //where does this photon hit first? maybe add in the shadow photons here
 
-
-		//std::cout << "photon ray: " << photon_ray << std::endl;
-		//printf("3b");
 		if (!best_hit.flag) break;
 
-		//printf("4");
 		photon->position = best_hit.position;
-
-		//std::cout << "hit object: " << best_hit.what << std::endl;
-
 		bool is_specular = best_hit.what->material->reflective || best_hit.what->material->transparent;
 
 		if (!is_specular) {
-			//printf("5");
 			// add to global and check for caustic
 			photon->position = best_hit.position;
 			photon->BRDF_d = best_hit.what->material->BRDF_d;
-			//photon->BRDF_s = best_hit.what->material->BRDF_s;
 			globalPhotons.push_back(photon);
 
-			//std::cout << "globalPhotons.size: " << globalPhotons.size() << std::endl;
-
 			if (saw_specular) {
-				//printf("6");
 				causticPhotons.push_back(photon);
 				// reset the caustic photon
 				saw_specular = false;
@@ -1088,16 +736,11 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 			// actually, start with just one diffuse hit, inc for global photons
 			break;
 		} else {
-			//printf("7");
 			saw_specular = true;
 			photon->c_russian_roulette(best_hit);
 			Ray new_ray;
 
-			//std::cout << "transmitted? " << photon->transmitted << std::endl;
-			//std::cout << "reflected? " << photon->reflected << std::endl;
-
 			if (photon->reflected) {
-				//printf("8");
 				// change the intensity -- here or in c_russian_roulette?
 				// don't want to kill a specular photon in russian roulette, 
 				// it only terminates if it hits a diffuse surface, or the bounce limit runs out
@@ -1107,31 +750,23 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 			}
 			if (photon->transmitted) {
 				bool tir = false;
-				//std::cout << "photon_ray: " << photon_ray << std::endl;
                 refract_ray(photon_ray, best_hit, new_ray, tir);
 				photon_ray.position = new_ray.position;
 				photon_ray.direction = new_ray.direction;
-				//std::cout << "photon_ray: " << photon_ray << std::endl;
 				if (tir) {
                     // if total internal reflection, treat as mirror
                     reflect_ray(photon_ray, best_hit, new_ray);
 					photon_ray.position = new_ray.position;
 					photon_ray.direction = new_ray.direction;
-					//std::cout << "photon_ray: " << photon_ray << std::endl;
                 }
 			}
 		}
-		//printf("10");
-		//std::cout << "saw specular: " << saw_specular << std::endl;
 	}
-	//printf("11");
 }
 
 
 /// creates caustic and global photon maps, saves them in causticTree and globalTree
 void Scene::create_photon_maps() {
-	//caustic_photon_map(5);
-	//global_photon_map(5);
 
 	causticPhotons.clear();
 

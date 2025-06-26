@@ -187,9 +187,6 @@ bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vect
   d.y = ray.direction.y;
   d.z = ray.direction.z;
 
-  //std::cout << "p: " << p.x << ", " << p.y << ", " << p.z << std::endl;
-  //std::cout << "d: " << d.x << ", " << d.y << ", " << d.z << std::endl;
-
   e1.x = v1.x - v0.x;
   e1.y = v1.y - v0.y;
   e1.z = v1.z - v0.z;
@@ -200,30 +197,9 @@ bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vect
   d.cross(e2,h);
   a = e1.dot(h);
 
-  //e1.cross(e2, h);
-  //std::cout << "h: " << h.x << ", " << h.y << ", " << h.z << std::endl;
-  //h.normalise();
-  //a = d.dot(h);
-
-  //std::cout << "v0: " << v0.x << ", " << v0.y << ", " << v0.z << std::endl;
-  //std::cout << "v1: " << v1.x << ", " << v1.y << ", " << v1.z << std::endl;
-  //std::cout << "v2: " << v2.x << ", " << v2.y << ", " << v2.z << std::endl;
-  //std::cout << "d: " << d.x << ", " << d.y << ", " << d.z << std::endl;
-/*
-  std::cout << "v1: " << v1.x << ", " << v1.y << ", " << v1.z << std::endl;
-  std::cout << "v2: " << v2.x << ", " << v2.y << ", " << v2.z << std::endl;
-  std::cout << "d: " << d.x << ", " << d.y << ", " << d.z << std::endl;
-  std::cout << "h normalised: " << h.x << ", " << h.y << ", " << h.z << std::endl;
-  std::cout << "e1: " << e1.x << ", " << e1.y << ", " << e1.z << std::endl;
-  std::cout << "e2: " << e2.x << ", " << e2.y << ", " << e2.z << std::endl;
-  std::cout << "a: " << a << std::endl;
-*/
-
   // check if the ray is parallel to the triangle
   if (a > -0.00001f && a < 0.00001f)
   {
-    //printf("b");
-    //std::cout << "a: " << a << std::endl;
     return false ;
   }
 
@@ -232,43 +208,28 @@ bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vect
   s.y = p.y - v0.y;
   s.z = p.z - v0.z;
 
-  //std::cout << "f: " << f << std::endl;
-  //std::cout << "s: " << s.x << ", " << s.y << ", " << s.z << std::endl;
-
   u = f * s.dot(h);
 
-  
-
   s.cross(e1,q);
-  //std::cout << "q: " << q.x << ", " << q.y << ", " << q.z << std::endl;
   v = f * d.dot(q);
-  //printf("    u=%.6f, v=%.6f\n", u, v);
 
   if (u < 0.0f || u > 1.0f)
   {
-    //printf("c");
     return false;
   }
 
   if ((v < 0.0f) || ((u + v) > 1.0f))
   {
-    //printf("d");
     return false;
   }
 
   // compute t
- 
   t = f * e2.dot(q);
-
-  //std::cout << "t: " << t << std::endl;
 
   if (t > 0.00001f)
   {
-    //printf("e");
     return true; // it's in front ray start
   }
-
-  //printf("f");
 
   // it's behind you
   return false;
@@ -319,10 +280,6 @@ void PolyMesh::triangle_intersection(Ray ray, Hit &hit, int which_triangle)
 
   float ndotdir = face_normal[which_triangle].dot(ray.direction);
 
-  //std::cout << "first ray: " << ray.direction.x << ", " << ray.direction.y << ", " << ray.direction.z << std::endl;
-  //std::cout << "face_normal[i]: " << face_normal[which_triangle].x << ", " << face_normal[which_triangle].y << ", " << face_normal[which_triangle].z << std::endl;
-  //std::cout << "ndotdir: " << ndotdir << std::endl;
-
   // ray is parallel to triangle so does not intersect
   if (fabs(ndotdir) < 0.000000001f) return;
 
@@ -349,15 +306,10 @@ void PolyMesh::triangle_intersection(Ray ray, Hit &hit, int which_triangle)
 
   hit.flag =  rayTriangleIntersect(ray, v0, v1, v2, t) ;
 
-  //std::cout << "hit.flag: " << hit.flag << std::endl;
-
   if (hit.flag == false) return;
   
-
   // intersection is behind start of ray
   if (t <= 0.0f) return;
-
-  //printf("made it");
 
   Vertex p;
 
@@ -373,14 +325,11 @@ void PolyMesh::triangle_intersection(Ray ray, Hit &hit, int which_triangle)
 
   hit.normal.normalise();
 
-  //std::cout << "triangle intersection hit.normal: " << hit.normal.x << ", " << hit.normal.y << ", " << hit.normal.z << std::endl;
-
   return;
 }
 
 void PolyMesh::intersection(Ray ray, Hit &hit)
 {
-  //printf("in pm intersection");
   Hit current_hit;
   int i;
 
@@ -390,29 +339,21 @@ void PolyMesh::intersection(Ray ray, Hit &hit)
 
   for(i = 0; i < triangle_count; i += 1)
   {
-    //printf("A");
     triangle_intersection(ray, current_hit, i);
 
     if (current_hit.flag != false) {
-      //printf("we have a triangle hit");
-      //printf("B");
       if (hit.flag == false) {
-        //printf("C");
 	      hit = current_hit;
 
       } else if (current_hit.t < hit.t) {
-        //printf("D");
         hit = current_hit;
       }
     }
   }
 
   if (hit.flag == true) {
-    //printf("E");
-    //printf("we have a pm hit!");
     if(hit.normal.dot(ray.direction) > 0.0) {
       hit.normal.negate();
     }
   }
-  //std::cout << "pm intersection hit.normal: " << hit.normal.x << ", " << hit.normal.y << ", " << hit.normal.z << std::endl;
 }

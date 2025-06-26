@@ -1,5 +1,7 @@
+// quick run using:
 // g++ -o mainexecutable main.cpp framebuffer.cpp polymesh.cpp directional_light.cpp sphere.cpp phong.cpp scene.cpp point_light.cpp photon.cpp -lm
 // ./mainexecutable
+// magick test.ppm test.png
 
 #include <iostream>
 #include <ctime>
@@ -36,10 +38,6 @@ int main() {
 	//scene.test();
 	scene.teapot_box();
 	scene.create_photon_maps();
-	
-	printf("we have created photon maps!");
-
-	
 
     // create a ray starting at (0,0,0) to use for the camera
 	Ray ray;
@@ -76,7 +74,7 @@ int main() {
 			time(&timestamp);
 			cout << ctime(&timestamp);
 		}
-		std::cerr << "Progress: " << y << "/" << height << "\n" << flush;
+		cerr << "Progress: " << y << "/" << height << "\n" << flush;
 	}
 	// write framebuffer to a ppm file
 	fb->writeRGBFile((char *)"test.ppm");
@@ -84,7 +82,6 @@ int main() {
 	time(&timestamp);
 
 	// Display the date and time represented by the timestamp
-	cout << ctime(&timestamp);
-	printf("finished");
+	cout << "Finished at: " << ctime(&timestamp);
 	return 0;
 }

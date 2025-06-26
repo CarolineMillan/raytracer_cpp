@@ -17,16 +17,12 @@ Sphere::Sphere(Vertex c, float r)
 
 void Sphere::intersection(Ray ray, Hit &hit)
 {
-
-	//std::cout << "sphere intersection running..." << std::endl;
-	//printf("a");
 	Vector ro;
 
 	hit.flag = false;
 
 	// offset ray by sphere position
 	// equivalent to transforming ray into local sphere space
-
 	ro.x = ray.position.x - center.x;
 	ro.y = ray.position.y - center.y;
 	ro.z = ray.position.z - center.z;
@@ -37,34 +33,21 @@ void Sphere::intersection(Ray ray, Hit &hit)
 
 	float disc = b*b - 4 * a*c;
 
-	//std::cout << "ray: " << ray.position.x << ", " << ray.position.y << ", " << ray.position.z << std::endl;
-	//std::cout << "ro: " << ro.x << ", " << ro.y << ", " << ro.z << std::endl;
-
-	if (disc < 0.0f)
-	{
-		//printf("b");
-		return; // a negative value indicates no intersection.
-	}
+	// a negative value indicates no intersection
+	if (disc < 0.0f) return; 
 
 	float ds = sqrtf(disc);
-	
 
 	float t0 = (-b - ds) / 2.0f;
 	float t1 = (-b + ds) / 2.0f;
 
-	if (t1 < 0.0f)
-	{
-		//printf("c");
-	  return;
-	}
+	if (t1 < 0.0f) return;
 
 	// if an intersection has been found, record details in hit object
-
 	hit.what = this;
 
-	if (t0 > 0.0) //smallest root is positive.
-	{
-		//printf("d");
+	//smallest root is positive.
+	if (t0 > 0.0) {
 		hit.t = t0;
 		hit.position.x = ray.position.x + t0 * ray.direction.x;
 		hit.position.y = ray.position.y + t0 * ray.direction.y;
@@ -74,11 +57,9 @@ void Sphere::intersection(Ray ray, Hit &hit)
 		hit.normal.z = hit.position.z - center.z;
 		hit.normal.normalise();
 		hit.flag = true;
-		//std::cout << "sphere intersection hit.normal: " << hit.normal.x << ", " << hit.normal.y << ", " << hit.normal.z << std::endl;
 		return;
 	}
-
-	//printf("e");
+	
 	hit.t = t1;
 	hit.position.x = ray.position.x + t1 * ray.direction.x;
 	hit.position.y = ray.position.y + t1 * ray.direction.y;
@@ -88,6 +69,5 @@ void Sphere::intersection(Ray ray, Hit &hit)
 	hit.normal.z = hit.position.z - center.z;
 	hit.normal.normalise();
 	hit.flag = true;
-	//std::cout << "sphere intersection hit.normal: " << hit.normal.x << ", " << hit.normal.y << ", " << hit.normal.z << std::endl;
 	return;
 }

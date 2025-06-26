@@ -15,7 +15,6 @@
 #include "ray.h"
 #include "hit.h"
 #include "point_light.h"
-//#include "photon.h"
 
 class Photon {
 public:

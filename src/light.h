@@ -36,5 +36,3 @@ public:
 
 	}
 };
-
-//these functions are fine being empty, used in directonal_light, a subclass of light.

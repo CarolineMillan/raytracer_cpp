@@ -23,7 +23,6 @@ public:
 	bool transparent;
 	float eta;
 	float kr, kt;
-	//Colour BRDF = BRDF_s.add(BRDF_d); //how to split this into specular and diffuse
 
 	Colour BRDF_s, BRDF_d;
 

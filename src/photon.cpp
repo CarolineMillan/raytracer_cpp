@@ -57,23 +57,15 @@ Photon::Photon(PointLight L, int no_of_photons)
 	this->direction = L.direction;
 
 	//generate a random direction
-
-	//printf("I'm going in...");
 	do {
 		//generate random direction until you get one that's lit
-		//printf("looping");
-		//generate random point and check its outside the sphere - x*x + y*y + z*z > 0 (?)
-
-		//srand (time(NULL)); //initialises random seed
+		//srand (time(NULL)); //initialises random seed, moved to main. double check this
 		direction.x = (rand() % 100000)/100000.0f;
 		direction.y = (rand() % 100000)/100000.0f;
 		direction.z = (rand() % 100000)/100000.0f;
 		direction.normalise();
-
-		//L.get_intensity(direction, intensity);
 	} while (direction.len_sqr() > 1.0f);
 
-	//printf("I'm out!!");
 	shadow = false;
 	reflected = false;
 	absorbed = false;
@@ -86,12 +78,9 @@ Photon::Photon(PointLight L, int no_of_photons)
 	std::uniform_int_distribution<> dis(1, 100);
 
 	w = dis(gen)/100;
-
-	//BRDF = BRDF_s + BRDF_d;
 }
 
 // the ray generated in the following is used to see where the photon intersects the scene
-
 void Photon::ray(Ray &r)
 {
 	//our photon has a starting position and direction, so we can generate a ray
