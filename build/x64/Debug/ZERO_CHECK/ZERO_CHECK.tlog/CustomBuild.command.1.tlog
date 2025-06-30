@@ -1,6 +1,6 @@
-^C:\USERS\CAROL\DOCUMENTS\CAREER\CODE\RAY_TRACING\SUPREME-OCTO-FISHSTICK\RAYTRACER_CPP\BUILD\CMAKEFILES\705DB3F1836EA0E54E15DE7E05A0D4C9\GENERATE.STAMP.RULE
+^C:\USERS\CAROL\DOCUMENTS\CAREER\CODE\RAY_TRACING\RAYTRACER_CPP\BUILD\CMAKEFILES\B57F3B5F3277AFE104E5C5F438A10722\GENERATE.STAMP.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/carol/Documents/career/code/ray_tracing/supreme-octo-fishstick/raytracer_cpp -BC:/Users/carol/Documents/career/code/ray_tracing/supreme-octo-fishstick/raytracer_cpp/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/carol/Documents/career/code/ray_tracing/supreme-octo-fishstick/raytracer_cpp/build/RaytracerCpp.sln
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/carol/Documents/career/code/ray_tracing/raytracer_cpp -BC:/Users/carol/Documents/career/code/ray_tracing/raytracer_cpp/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/carol/Documents/career/code/ray_tracing/raytracer_cpp/build/RayTracer.sln
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone

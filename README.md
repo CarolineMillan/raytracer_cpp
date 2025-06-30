@@ -7,7 +7,7 @@ It outputs a scene to a PPM image, which can be converted to a viewable PNG via 
 ## Features
 - Whitted Ray Tracing
 - supports spheres and Polymesh objects
-- supports point lights, shadows, transparent adn reflective materials
+- supports point lights, shadows, transparent and reflective materials
 - phong shading (illumination, not interpoltion (yet...))
 - photon mapping (global and caustic) using kd-trees and k-NN searches
 - multi object scenes
@@ -24,6 +24,10 @@ Changes I made:
 ## Installation and Running the Path Tracer
 
 ## Example Images
+
+## Future Plans:
+- proper importance sampling (right now I've just hard coded some photons to fire at specular objects, also for k-NN on globalTree)
+- phong interpolation for meshes
 
 ## Acknowledgements
 - my lecturer Ken Cameron provided the base code that I worked off for this project, and I've left his comments in 

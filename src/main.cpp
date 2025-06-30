@@ -27,8 +27,8 @@ int main() {
 	cout << ctime(&timestamp);
 
     // create a framebuffer
-    int width = 200; 
-	int height = 200; // 1280
+    int width = 128; 
+	int height = 128; // 1280
     FrameBuffer *fb = new FrameBuffer(width,height);
 
 	srand (time(NULL)); //initialises random seed

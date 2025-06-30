@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\core\framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\core\photon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\core\scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\geometry\polymesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\geometry\sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\lights\directional_light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\lights\point_light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\materials\phong.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{15235E86-701B-3600-A5C3-AF7AB213BBCC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
