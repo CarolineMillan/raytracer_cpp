@@ -1,9 +1,0 @@
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\core\framebuffer.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\framebuffer.obj
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\core\photon.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\photon.obj
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\core\scene.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\scene.obj
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\geometry\polymesh.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\polymesh.obj
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\geometry\sphere.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\sphere.obj
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\lights\directional_light.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\directional_light.obj
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\lights\point_light.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\point_light.obj
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\main.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\main.obj
-C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\src\materials\phong.cpp;C:\Users\carol\Documents\career\code\ray_tracing\raytracer_cpp\build\RayTracer.dir\Debug\phong.obj

@@ -1,0 +1,10 @@
+
+.vscode/
+
+build/
+
+notes.txt
+
+*.exe
+
+*.DS_Store
