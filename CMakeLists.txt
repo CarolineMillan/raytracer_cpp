@@ -1,15 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
+
+
 project(RayTracer LANGUAGES CXX)
 
-# 1) Require C++20
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# 2) Declare the executable target
+# executable target
 add_executable(RayTracer)
 
-# 3) Tell the compiler where to find headers
+# tell the compiler where to find headers
 target_include_directories(RayTracer
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src

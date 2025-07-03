@@ -27,8 +27,8 @@ int main() {
 	cout << ctime(&timestamp);
 
     // create a framebuffer
-    int width = 128; 
-	int height = 128; // 1280
+    int width = 128*2; 
+	int height = 128*2; // 1280
     FrameBuffer *fb = new FrameBuffer(width,height);
 
 	srand (time(NULL)); //initialises random seed
@@ -70,7 +70,7 @@ int main() {
 			fb->plotPixel(x, y, colour.r, colour.g, colour.b);
 			fb->plotDepth(x,y, depth);
 		}
-		if (y % 10 == 0) {
+		if (y % (width/10) == 0) {
 			time(&timestamp);
 			cout << ctime(&timestamp);
 		}
