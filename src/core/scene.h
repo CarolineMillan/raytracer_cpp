@@ -52,17 +52,31 @@ public:
 
 	void test();
 
+	Colour background_colour(float depth);
+
 	// Trace a ray through the scene and find the closest if any object
 	// intersection in front of the ray.
 	void object_intersection(Ray ray, Hit &hit);
 
 	void point_light_intersection(Ray ray, PointLight*& pl, float &depth, bool &flag);
 
+	Ray get_shadow_ray(Vector ldir, Hit &best_hit);
+
 	void refract_ray(const Ray &incoming, Hit &hit, Ray &refracted, bool &total_internal_reflection);
 
 	void reflect_ray(const Ray &incoming, Hit &hit, Ray &reflected);
 
+	Colour get_shadow_colour(Ray ray, Hit hit, int ref_limit);
+
+	Colour get_refraction_colour(Ray ray, Hit hit, int ref_limit);
+
+	Colour get_reflection_colour(Ray ray, Hit hit, int ref_limit);
+
 	Colour gather_diffuse(const Hit best_hit, const vector<Photon*> globalNeighbours);
+	
+	Colour gather_diffuse_reflection(Ray ray, Hit hit, vector<Photon*> globalNeighbours);
+
+	Colour compute_colour(Ray ray, Hit hit, float &depth, int ref_limit);
 	
 	// Trace a ray through the scene and return its colour. This function
 	// is the one that should recurse down the reflection/refraction tree.
