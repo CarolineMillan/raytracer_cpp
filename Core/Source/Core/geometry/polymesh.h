@@ -31,5 +31,5 @@ public:
 	bool rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vector &v1, const Vector &v2, float &t);
         PolyMesh(char *file);
 	PolyMesh(char *file, Transform *transform);
-	~PolyMesh(){}
+	~PolyMesh();
 };

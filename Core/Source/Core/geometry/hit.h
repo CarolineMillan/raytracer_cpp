@@ -27,6 +27,13 @@ public:
 	Vertex position;
 	Vector normal;
 
+    Hit(){
+        // Vertex and Vector have their own default constructors so they're fine
+        flag = false;
+        t = 0.0;
+        what = nullptr;
+    };
+
 	friend ostream& operator<<(ostream& os, const Hit& h)
 	{
 	  os << "Hit{" << h.flag <<",[" << h.position.x << "," << h.position.y << "," << h.position.z << "],[" << h.normal.x << "," << h.normal.y << "," << h.normal.z << "]}\n"; 

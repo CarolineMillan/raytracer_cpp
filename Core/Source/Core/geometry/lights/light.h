@@ -22,6 +22,8 @@ public:
 		next = (Light *)0;
 	}
 
+    virtual ~Light(){};
+
 	// Get the direction towards the light at the point on the surface
 	// should return true if the surface is in front of the light
 	// and false if it's behind and not illuminated.

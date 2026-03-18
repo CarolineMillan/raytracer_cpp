@@ -21,7 +21,7 @@
 #include <cmath>
 
 //#pragma message ("RESOURCE_DIR => " RESOURCE_DIR)
-
+const string RESOURCE_DIR = "Core/Source/Core/meshes";
 
 
 Scene::Scene()
@@ -42,9 +42,9 @@ Scene::~Scene() {
     }
 
     // 2) Delete all lights in your linked-list:
-    PointLight *pl = light_list;
+    Light *pl = light_list;
     while (pl) {
-        PointLight *next = pl->next;
+        Light *next = pl->next;
         delete pl;
         pl = next;
     }
@@ -62,7 +62,7 @@ Scene::~Scene() {
 /// A NICE SCENE -- TEAPOT AND SPHERE INSIDE AN OPEN BOX
 void Scene::teapot_box() {
 
-    string RESOURCE_DIR = "../meshes";
+
 	string resourceDir = RESOURCE_DIR;
 	
 	// The following transform allows 4D homogeneous coordinates to be transformed. It moves the supplied teapot model to somewhere visible.
@@ -364,7 +364,6 @@ void Scene::cornell_tea_party() {
 */
 void Scene::cornell_tea_party() {
     // read in the teapot model
-    string RESOURCE_DIR = "../meshes";
     string resourceDir = RESOURCE_DIR;
 
     // transform to place the teapot similarly to your other scenes
@@ -559,7 +558,6 @@ void Scene::cornell_tea_party() {
 
 void Scene::dragon() {
 	// read in the dragon model
-    string RESOURCE_DIR = "../meshes";
 	string resourceDir = RESOURCE_DIR;
 	
 	// The following transform allows 4D homogeneous coordinates to be transformed. It moves the supplied teapot model to somewhere visible.
@@ -676,7 +674,8 @@ void Scene::point_light_intersection(Ray ray, PointLight*& pl, float &depth, boo
 			}
 		}
 
-		light = light->next;
+        // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
+		light = static_cast<PointLight*>(light->next);
 	}
 	return;
 }
@@ -800,7 +799,8 @@ Colour Scene::get_shadow_colour(Ray ray, Hit best_hit, int ref_limit) {
 			}
 		
 		// move on to the next light
-		light = light->next;
+        // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
+		light = static_cast<PointLight*>(light->next);
 	}
 	return colour;
 }
@@ -1174,7 +1174,8 @@ void Scene::create_photon_maps() {
 			}
 			*/
 			photon_trace(photon, 15);
-			light = light->next;
+            // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
+            light = static_cast<PointLight*>(light->next);
 		}
 		light = light_list;
 		if (n % (no_of_photons/100) == 0) { 

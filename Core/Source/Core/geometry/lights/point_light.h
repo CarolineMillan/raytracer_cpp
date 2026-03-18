@@ -22,7 +22,6 @@ public:
 	Vertex point;
 	Vector direction;
 	Colour intensity;
-	PointLight *next;
 
 	PointLight();
 	PointLight(Vertex pt, Colour col);

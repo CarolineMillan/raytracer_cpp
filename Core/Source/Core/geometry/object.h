@@ -26,6 +26,8 @@ public:
 		c_next = (Object *)0;
 		material = 0;
 	}
+
+    virtual ~Object(){};
 	
 	virtual void intersection(Ray ray, Hit &hit)
 	{

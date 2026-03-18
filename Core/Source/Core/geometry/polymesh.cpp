@@ -169,6 +169,14 @@ void PolyMesh::do_construct(char *file, Transform *transform)
 }
 
 
+PolyMesh::~PolyMesh() {
+    delete[] vertex;
+    delete[] triangle;
+    delete[] face_normal;
+    delete[] vertex_normal;
+    };
+
+
 // Moller-Trumbore
 bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vector &v1, const Vector &v2, float &t)
 {

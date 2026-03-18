@@ -26,6 +26,16 @@ public:
 
 	Colour BRDF_s, BRDF_d;
 
+    Material(){
+        reflective = false;
+        transparent = false;
+        eta = 1.0;
+        kr = 0.0;
+        kt = 0.0;
+    };
+
+    virtual ~Material(){};
+
 
 	virtual void compute_base_colour(Colour &result)
 	{
