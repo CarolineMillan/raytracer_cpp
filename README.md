@@ -48,6 +48,6 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 
 - my lecturer Ken Cameron provided the base code that I worked off for this project, and I've left his comments in 
 - I used [The Cherno's project template](https://github.com/TheCherno/ProjectTemplate) to structure the project
-- kdtree.h was AI-assisted, the rest is my own work
+- kdtree.h and ```~Scene()``` were AI-assisted, the rest is my own work
 
 ## Licence

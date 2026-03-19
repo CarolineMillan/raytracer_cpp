@@ -16,14 +16,14 @@
 class Object {
 public:
 
-	Object *next;
-	Object *c_next; //to create a list for caustic photon map
+    std::unique_ptr<Object> next;
+	//Object *c_next; //to create a list for caustic photon map
 	Material *material;
 
 	Object()
 	{
-		next = (Object *)0;
-		c_next = (Object *)0;
+		next = nullptr;
+	//	c_next = (Object *)0;
 		material = 0;
 	}
 

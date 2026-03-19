@@ -23,8 +23,8 @@
 class Scene {
 public:
 
-	Object *object_list;
-	PointLight *light_list;
+    std::unique_ptr<Object> object_list;
+    std::unique_ptr<PointLight> light_list;
 
 	vector<Photon> causticPhotons;
 	KDTree* causticTree;

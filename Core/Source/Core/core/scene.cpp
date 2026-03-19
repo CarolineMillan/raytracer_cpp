@@ -33,27 +33,20 @@ Scene::Scene()
 }
 
 Scene::~Scene() {
-    // 1) Delete all objects in your linked-list:
-    Object *o = object_list;
-    while (o) {
-        Object *next = o->next;
-        delete o;
-        o = next;
-    }
 
-    // 2) Delete all lights in your linked-list:
-    Light *pl = light_list;
+    // Delete all lights in your linked-list:
+    Light *pl = light_list.get();
     while (pl) {
         Light *next = pl->next;
         delete pl;
         pl = next;
     }
 
-    // 3) Delete your KD-trees:
+    // Delete your KD-trees:
     delete causticTree;   // safe if nullptr
     delete globalTree;    // safe if nullptr
 
-    // 4) (Optional) clear vectors if you still use them:
+    // (Optional) clear vectors if you still use them:
     causticPhotons.clear();
     globalPhotons.clear();
 }
@@ -172,7 +165,7 @@ void Scene::teapot_box() {
 	sphere->material->eta = 1.5; //glass refractive index
 	sphere->material->kr = 0.4;
 
-    pm->next = sphere;
+    pm->next = std::unique_ptr<Object>(sphere);
 
 	/// put the scene in a box 
 
@@ -219,13 +212,13 @@ void Scene::teapot_box() {
     w4->material->transparent = false;
     w4->material->reflective = false;
 
-	sphere->next = fl;
-	fl->next = ce;
-	ce->next = w1;
-	w1->next = w2;
-	w2->next = w3;
-	w3->next = w4;
-	w4->next = nullptr;
+	sphere->next = std::unique_ptr<Object>(fl);
+	fl->next = std::unique_ptr<Object>(ce);
+	ce->next = std::unique_ptr<Object>(w1);
+	w1->next = std::unique_ptr<Object>(w2);
+	w2->next = std::unique_ptr<Object>(w3);
+	w3->next = std::unique_ptr<Object>(w4);
+	w4->next = std::unique_ptr<Object>(nullptr);
 
 	//creates a light source
 	Vertex v1 = Vertex(-1.0, 1.0, -1.0);
@@ -244,9 +237,9 @@ void Scene::teapot_box() {
 	// define object_list and light_list
 	//object_list = pm;
 	//object_list->next = sphere;
-	object_list = pm;
-	object_list->next = sphere;
-	light_list = pl;
+	object_list = std::unique_ptr<Object>(pm);
+	object_list->next = std::unique_ptr<Object>(sphere);
+	light_list = std::unique_ptr<PointLight>(pl);
 	light_list->next = nullptr;
 }
 
@@ -322,9 +315,9 @@ void Scene::test() {
 	//w3->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
 	w3->material->BRDF_d = Colour(1.0, 1.0, 1.0, 1.0);
 
-	object_list = sphere;
-	object_list->next = w1;
-	w1->next = w3;
+	object_list = std::unique_ptr<Object>(sphere);
+	object_list->next = std::unique_ptr<Object>(w1);
+	w1->next = std::unique_ptr<Object>(w3);
 	w3->next = nullptr;
 
 	std::cout << "sphere: " << object_list << std::endl;
@@ -337,7 +330,7 @@ void Scene::test() {
 	Vertex pt = Vertex(-1.0, -1.0, -1.0);
 	Colour c = Colour(1.0, 1.0, 1.0, 1.0);
 	Vector dir = Vector(0.1, 0.1, 0.1);
-	light_list = new PointLight(pt, c, dir);
+	light_list = std::make_unique<PointLight>(pt, c, dir);
 	light_list->next = nullptr; 
 
 	std::cout << "light_list->direction: " << light_list->direction.x << ", " << light_list->direction.y << ", " << light_list->direction.z << std::endl;
@@ -510,21 +503,21 @@ void Scene::cornell_tea_party() {
 
     // ---- link objects into the scene linked-list ----
     // order: teapot -> mirror cube -> glass sphere -> metal ball -> floor -> ceiling -> walls...
-    object_list = pm;
+    object_list = std::unique_ptr<Object>(pm);
     //if (mirrorCube) {
     //    pm->next = mirrorCube;
     //    mirrorCube->next = glassSphere;
     //} else {
-        pm->next = glassSphere;
+        pm->next = std::unique_ptr<Object>(glassSphere);
     //}
 	//object_list = glassSphere;
-    glassSphere->next = metalBall;
-    metalBall->next = fl;
-    fl->next = ce;
-    ce->next = w1;
-    w1->next = w2;
-    w2->next = w3;
-    w3->next = w4;
+    glassSphere->next = std::unique_ptr<Object>(metalBall);
+    metalBall->next = std::unique_ptr<Object>(fl);
+    fl->next = std::unique_ptr<Object>(ce);
+    ce->next = std::unique_ptr<Object>(w1);
+    w1->next = std::unique_ptr<Object>(w2);
+    w2->next = std::unique_ptr<Object>(w3);
+    w3->next = std::unique_ptr<Object>(w4);
     w4->next = nullptr;
 
     // ---- lights ----
@@ -551,7 +544,7 @@ void Scene::cornell_tea_party() {
 	// - (-0.6, 1.2, 0.8) = (1.4, -0.5, 3.2)
 
     // chain lights
-    light_list = pl_ceiling;
+    light_list = std::unique_ptr<PointLight>(pl_ceiling);
     light_list->next = pl_caustic;
     pl_caustic->next = nullptr;
 }
@@ -605,9 +598,9 @@ void Scene::dragon() {
 
 	// define object_list and light_list
 
-	object_list = dragon;
+	object_list = std::unique_ptr<Object>(dragon);
 	object_list->next = nullptr;
-	light_list = pl;
+	light_list = std::unique_ptr<PointLight>(pl);
 	light_list->next = nullptr;
 
 }
@@ -623,7 +616,7 @@ Colour Scene::background_colour(float depth) {
 
 /// best_hit returns the closest intersection between the ray and the list of objects
 void Scene::object_intersection(Ray ray, Hit &best_hit) {
-	Object *obj = object_list;
+	Object *obj = object_list.get();
 	best_hit.flag = false;
 
 	while(obj != 0) {
@@ -639,7 +632,7 @@ void Scene::object_intersection(Ray ray, Hit &best_hit) {
 			//std::cout << "obj_hit.flag: " << obj_hit.flag << std::endl;
 			if (best_hit.flag == false || obj_hit.t < best_hit.t) best_hit = obj_hit;
 		}
-		obj = obj->next;
+		obj = obj->next.get();
 	}
 	return;
 }
@@ -647,7 +640,7 @@ void Scene::object_intersection(Ray ray, Hit &best_hit) {
 
 void Scene::point_light_intersection(Ray ray, PointLight*& pl, float &depth, bool &flag) {
 	
-	PointLight *light = light_list;
+	PointLight *light = light_list.get();
 	pl = nullptr;
 	flag = false;
 
@@ -747,7 +740,7 @@ void Scene::reflect_ray(const Ray &incoming, Hit &hit, Ray &reflected) {
 Colour Scene::get_shadow_colour(Ray ray, Hit best_hit, int ref_limit) {
 	
 	// get a handle on the first light -- check this
-	PointLight *light = light_list;
+	PointLight *light = light_list.get();
 	Hit shadow_hit;
 	shadow_hit.flag = false;	
 	Colour colour = Colour();
@@ -1151,7 +1144,7 @@ void Scene::create_photon_maps() {
 	}
 
 
-	PointLight *light = light_list;
+	PointLight *light = light_list.get();
 	int no_of_photons = 100000;
 	causticPhotons.reserve(no_of_photons);
 	globalPhotons.reserve(no_of_photons);
@@ -1179,7 +1172,7 @@ void Scene::create_photon_maps() {
             // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
             light = static_cast<PointLight*>(light->next);
 		}
-		light = light_list;
+		light = light_list.get();
 		if (n % (no_of_photons/100) == 0) { 
 			std::cerr << "+" << flush;
 		}
