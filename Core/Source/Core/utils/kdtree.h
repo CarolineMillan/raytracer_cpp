@@ -20,7 +20,7 @@ struct KDNode {
 class KDTree {
 public:
     // Build a KD-tree from a list of Photon* pointers
-    explicit KDTree(std::vector<Photon*>& photons) {
+    explicit KDTree(std::vector<Photon>& photons) {
         root = buildRecursive(photons, 0, static_cast<int>(photons.size()), 0);
     }
 
@@ -45,19 +45,19 @@ private:
     KDNode* root = nullptr;
 
     // Recursive build: [begin, end) range in photons, depth for axis
-    KDNode* buildRecursive(std::vector<Photon*>& pts, int begin, int end, int depth) {
+    KDNode* buildRecursive(std::vector<Photon>& pts, int begin, int end, int depth) {
         if (begin >= end) return nullptr;
         int axis = depth % 3;
         int mid = (begin + end) / 2;
-        auto cmp = [axis](Photon* a, Photon* b) {
+        auto cmp = [axis](Photon& a, Photon& b) {
             switch (axis) {
-                case 0: return a->position.x < b->position.x;
-                case 1: return a->position.y < b->position.y;
-                default: return a->position.z < b->position.z;
+                case 0: return a.position.x < b.position.x;
+                case 1: return a.position.y < b.position.y;
+                default: return a.position.z < b.position.z;
             }
         };
         std::nth_element(pts.begin() + begin, pts.begin() + mid, pts.begin() + end, cmp);
-        KDNode* node = new KDNode{ pts[mid], axis, nullptr, nullptr };
+        KDNode* node = new KDNode{ &pts[mid], axis, nullptr, nullptr };
         node->left  = buildRecursive(pts, begin, mid, depth + 1);
         node->right = buildRecursive(pts, mid + 1, end, depth + 1);
         return node;

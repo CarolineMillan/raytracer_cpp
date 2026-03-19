@@ -26,10 +26,10 @@ public:
 	Object *object_list;
 	PointLight *light_list;
 
-	vector<Photon*> causticPhotons;
+	vector<Photon> causticPhotons;
 	KDTree* causticTree;
 
-	vector<Photon*> globalPhotons;
+	vector<Photon> globalPhotons;
 	KDTree* globalTree;
 
 

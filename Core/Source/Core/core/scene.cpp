@@ -1088,7 +1088,7 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 			photon->position = best_hit.position;
 			photon->direction = photon_ray.direction;
 			photon->BRDF_d = best_hit.what->material->BRDF_d;
-			globalPhotons.push_back(photon);
+			globalPhotons.push_back(*photon);
 
 			if (saw_specular) {
 				// ensure photon has an id; if not, use pointer address as fallback:
@@ -1105,7 +1105,7 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 								photon->intensity);
 				
 				//std::cout << "Depositing caustic photon on: " << best_hit.what << std::endl;
-				causticPhotons.push_back(photon);
+				causticPhotons.push_back(*photon);
 				// reset the caustic photon
 				saw_specular = false;
 			}
@@ -1153,10 +1153,12 @@ void Scene::create_photon_maps() {
 
 	PointLight *light = light_list;
 	int no_of_photons = 100000;
+	causticPhotons.reserve(no_of_photons);
+	globalPhotons.reserve(no_of_photons);
 	for (int n = 0; n < no_of_photons; n++) {
 		while (light != (PointLight*) 0) {
 			//trace a photon through the scene and store all the hits in a kd tree - how to go through specular objects only?
-			Photon *photon = new Photon(*light, no_of_photons);
+			Photon photon(*light, no_of_photons);
 			
 			// (0.8, 0.7, 4.0) - (0.0, 1.8, 0.0) = (0.8, -1.1, 4.0)
 			// - (-0.6, 1.2, 0.8) = (1.4, -0.5, 3.2)
@@ -1173,7 +1175,7 @@ void Scene::create_photon_maps() {
 				photon->direction = temp;
 			}
 			*/
-			photon_trace(photon, 15);
+			photon_trace(&photon, 15);
             // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
             light = static_cast<PointLight*>(light->next);
 		}

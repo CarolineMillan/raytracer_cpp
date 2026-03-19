@@ -12,6 +12,10 @@
 
 // A simple Phong based lighting model
 
+Phong::Phong() {
+    power = 0.0;
+};
+
 void Phong::compute_base_colour(Colour &result)
 {
 	result.r = ambient.r;
