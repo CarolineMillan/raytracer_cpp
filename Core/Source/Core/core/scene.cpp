@@ -34,14 +34,6 @@ Scene::Scene()
 
 Scene::~Scene() {
 
-    // Delete all lights in your linked-list:
-    Light *pl = light_list.get();
-    while (pl) {
-        Light *next = pl->next.get();
-        delete pl;
-        pl = next;
-    }
-
     // Delete your KD-trees:
     delete causticTree;   // safe if nullptr
     delete globalTree;    // safe if nullptr
@@ -59,7 +51,7 @@ void Scene::teapot_box() {
 	string resourceDir = RESOURCE_DIR;
 	
 	// The following transform allows 4D homogeneous coordinates to be transformed. It moves the supplied teapot model to somewhere visible.
-	Transform *transform = new Transform(1.0f, 0.0f, 0.0f,  0.0f,
+	auto transform = std::make_unique<Transform>(1.0f, 0.0f, 0.0f,  0.0f,
 			0.0f, 0.0f, 1.0f, -2.7f,
 			0.0f, 1.0f, 0.0f, 5.0f,
 			0.0f, 0.0f, 0.0f, 1.0f);
@@ -68,7 +60,7 @@ void Scene::teapot_box() {
 	//PolyMesh *pm = new PolyMesh((char *)"teapot_smaller.ply", transform);
 
 	std::string teapotPath = resourceDir + "/teapot_smaller.ply";
-    PolyMesh *pm = new PolyMesh((char *)teapotPath.c_str(), transform);
+    PolyMesh *pm = new PolyMesh((char *)teapotPath.c_str(), transform.get());
 
 	//creates Phong surface illumination model for polymesh
 
@@ -165,7 +157,7 @@ void Scene::teapot_box() {
 	sphere->material->eta = 1.5; //glass refractive index
 	sphere->material->kr = 0.4;
 
-    pm->next = std::unique_ptr<Object>(sphere);
+    //pm->next = std::unique_ptr<Object>(sphere);
 
 	/// put the scene in a box 
 
@@ -220,15 +212,17 @@ void Scene::teapot_box() {
 	w3->next = std::unique_ptr<Object>(w4);
 	w4->next = std::unique_ptr<Object>(nullptr);
 
+
 	//creates a light source
 	Vertex v1 = Vertex(-1.0, 1.0, -1.0);
 	Colour c = Colour(1.0f, 1.0f, 1.0f, 1.0f);
 	Vector d = Vector(0.01f, 0.01f, 1.0f);
 
+
 	Vertex sampling = v;
 	sampling.sub(v1);
 
-	cout << "sampling: " << sampling.x << ", " << sampling.y << ", " << sampling.z;
+	//cout << "sampling: " << sampling.x << ", " << sampling.y << ", " << sampling.z;
 
 
 
@@ -246,6 +240,7 @@ void Scene::teapot_box() {
 
 void Scene::test() {
 	
+	string resourceDir = RESOURCE_DIR;
 	/// A SIMPLE SCENE -- SPHERE, BACK WALL, ONE SIDE WALL
 	// rgb(211, 141, 255)
 	// rgb(244, 250, 252)
@@ -297,7 +292,12 @@ void Scene::test() {
 	sphere->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
 	sphere->material->BRDF_d = Colour(0.0, 0.0, 0.0, 0.0);
 */
-	PolyMesh *w1 = new PolyMesh((char *)"wall1.ply");
+
+	string w1_path = resourceDir + "/wall1.ply";
+	PolyMesh *w1 = new PolyMesh((char *)w1_path.c_str());
+
+	string w3_path = resourceDir + "/wall3.ply";
+	PolyMesh *w3 = new PolyMesh((char *)w3_path.c_str());
 
 	w1->material = &mat_wall1;
     w1->material->transparent = true;
@@ -307,7 +307,6 @@ void Scene::test() {
 	w1->material->eta = 1.5; //glass refractive index
 	w1->material->kr = 0.4;
 
-	PolyMesh *w3 = new PolyMesh((char *)"wall3.ply");
 	
 	w3->material = &mat_wall3;
     w3->material->transparent = false;
@@ -320,296 +319,22 @@ void Scene::test() {
 	w1->next = std::unique_ptr<Object>(w3);
 	w3->next = nullptr;
 
-	std::cout << "sphere: " << object_list << std::endl;
-	std::cout << "w1: " << object_list->next << std::endl;
-	std::cout << "w3: " << object_list->next->next << std::endl;
-
 	//creates a light source
-    DirectionalLight *dl = new DirectionalLight(Vector(0.01f, 0.01f, 1.0f),Colour(1.0f, 1.0f, 1.0f, 1.0f)); 
+    //DirectionalLight *dl = new DirectionalLight(Vector(0.01f, 0.01f, 1.0f),Colour(1.0f, 1.0f, 1.0f, 1.0f)); 
 
 	Vertex pt = Vertex(-1.0, -1.0, -1.0);
 	Colour c = Colour(1.0, 1.0, 1.0, 1.0);
 	Vector dir = Vector(0.1, 0.1, 0.1);
 	light_list = std::make_unique<PointLight>(pt, c, dir);
 	light_list->next = nullptr; 
-
-	std::cout << "light_list->direction: " << light_list->direction.x << ", " << light_list->direction.y << ", " << light_list->direction.z << std::endl;
-			
-}
-/*
-void Scene::cornell_tea_party() {
-	// read in the teapot model
-	string resourceDir = RESOURCE_DIR;
-	
-	// The following transform allows 4D homogeneous coordinates to be transformed. It moves the supplied teapot model to somewhere visible.
-	Transform *transform = new Transform(1.0f, 0.0f, 0.0f,  0.0f,
-			0.0f, 0.0f, 1.0f, -2.7f,
-			0.0f, 1.0f, 0.0f, 5.0f,
-			0.0f, 0.0f, 0.0f, 1.0f);
-
-	//  Read in the teapot model.
-	//PolyMesh *pm = new PolyMesh((char *)"teapot_smaller.ply", transform);
-
-	std::string teapotPath = resourceDir + "/teapot_smaller.ply";
-    PolyMesh *pm = new PolyMesh((char *)teapotPath.c_str(), transform);
-
-}
-*/
-void Scene::cornell_tea_party() {
-    // read in the teapot model
-    string resourceDir = RESOURCE_DIR;
-
-    // transform to place the teapot similarly to your other scenes
-    Transform *transform = new Transform(1.0f, 0.0f, 0.0f,  0.0f,
-                                         0.0f, 0.0f, 1.0f, -2.7f,
-                                         0.0f, 1.0f, 0.0f, 5.0f,
-                                         0.0f, 0.0f, 0.0f, 1.0f);
-
-    // ---- load teapot mesh ----
-    std::string teapotPath = resourceDir + "/teapot_smaller.ply";
-    PolyMesh *pm = new PolyMesh((char *)teapotPath.c_str(), transform);
-
-    // ---- create materials ----
-    float scaling = 1.0f / M_PI;
-
-    // teapot: warm ceramic (mostly diffuse with slight specular)
-    mat_pm = Phong();
-    mat_pm.ambient = Colour(255.0/255.0, 255.0/255.0, 240.0/255.0, 1.0f);
-    mat_pm.diffuse = Colour(255.0/255.0, 255.0/255.0, 240.0/255.0, 1.0f);
-    mat_pm.specular = Colour(0.9f, 0.9f, 0.9f, 1.0f);
-    mat_pm.BRDF_d = mat_pm.diffuse; mat_pm.BRDF_d.scale(scaling);
-    mat_pm.power = 60.0f;
-    mat_pm.transparent = false;
-    mat_pm.reflective = true;
-    mat_pm.kr = 0.08f;   // small glossy reflection
-    mat_pm.kt = 0.0f;
-
-    pm->material = &mat_pm;
-
-    // glass for refractive sphere
-    glass = Phong();
-    glass.ambient = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 1.0f);
-	//glass.ambient = Colour(191.0/255.0, 255.0/255.0, 235.0/255.0, 1.0f);
-    glass.diffuse = glass.ambient; //(191.0/255.0, 255.0/255.0, 235.0/255.0, 1.0f);
-    glass.specular = Colour(1.0f, 1.0f, 1.0f, 1.0f);
-    glass.BRDF_d = glass.diffuse; glass.BRDF_d.scale(scaling);
-    glass.power = 120.0f;
-    glass.transparent = true;
-    glass.reflective = true;   // glass has some reflection via fresnel
-    glass.eta = 1.5f;          // typical glass IOR
-    // kr/kt will be computed in refract_ray via fresnel
-
-    // mirror (perfect)
-    Phong *mirror_mat = new Phong();
-    mirror_mat->ambient = Colour(0.02f, 0.02f, 0.02f, 1.0f);
-    mirror_mat->diffuse = Colour(0.0f, 0.0f, 0.0f, 1.0f);
-    mirror_mat->specular = Colour(1.0f, 1.0f, 1.0f, 1.0f);
-    mirror_mat->BRDF_d = mirror_mat->diffuse; mirror_mat->BRDF_d.scale(scaling);
-    mirror_mat->power = 200.0f;
-    mirror_mat->transparent = false;
-    mirror_mat->reflective = true;
-    mirror_mat->kr = 1.0f;     // perfect mirror
-    mirror_mat->kt = 0.0f;
-
-    // metal ball (glossy conductor-like)
-    Phong *metal_mat = new Phong();
-    metal_mat->ambient = Colour(0.0f, 0.0f, 0.0f, 1.0f);
-    metal_mat->diffuse = Colour(0.0f, 0.0f, 0.0f, 1.0f);
-    metal_mat->specular = Colour(0.95f, 0.95f, 1.0f, 1.0f); // slightly bluish chrome
-    metal_mat->BRDF_d = metal_mat->diffuse; metal_mat->BRDF_d.scale(scaling);
-    metal_mat->power = 180.0f;
-    metal_mat->transparent = false;
-    metal_mat->reflective = true;
-    metal_mat->kr = 0.9f;      // very reflective but slightly imperfect
-    metal_mat->kt = 0.0f;
-
-    // ---- set up geometry ----
-
-    // glass sphere (placed slightly in front/center of teapot)
-    Vertex sph_c; sph_c.x = 0.8f; sph_c.y = 0.7f; sph_c.z = 4.0f;
-    Sphere *glassSphere = new Sphere(sph_c, 0.9f);
-    glassSphere->material = &glass;
-
-    // small metal ball (to pick up highlights)
-    Vertex mb_c; mb_c.x = -0.6f; mb_c.y = 0.5f; mb_c.z = 4.2f;
-    Sphere *metalBall = new Sphere(mb_c, 0.22f);
-    metalBall->material = metal_mat;
-
-    // mirror cube - load as polymesh (expects a cube .ply in RESOURCE_DIR)
-    std::string mirrorCubePath = resourceDir + "/cube.ply";
-    PolyMesh *mirrorCube = nullptr;
-    // if the resource doesn't exist in your tree you can replace the filename with a cube you have
-    mirrorCube = new PolyMesh((char *)mirrorCubePath.c_str());
-    //if (mirrorCube) {
-        mirrorCube->material = mirror_mat;
-        // move cube into scene if necessary (optionally you could apply a Transform)
-    //}
-
-    // ---- Cornell box walls (use same names as your teapot_box/test functions) ----
-    string fl_path = resourceDir + "/square.ply";
-    PolyMesh *fl = new PolyMesh((char *)fl_path.c_str());
-
-    string ce_path = resourceDir + "/ceiling.ply";
-    PolyMesh *ce = new PolyMesh((char *)ce_path.c_str());
-
-    string w1_path = resourceDir + "/wall1.ply";
-    PolyMesh *w1 = new PolyMesh((char *)w1_path.c_str());
-
-    string w2_path = resourceDir + "/wall2.ply";
-    PolyMesh *w2 = new PolyMesh((char *)w2_path.c_str());
-
-    string w3_path = resourceDir + "/wall3.ply";
-    PolyMesh *w3 = new PolyMesh((char *)w3_path.c_str());
-
-    string w4_path = resourceDir + "/wall4.ply";
-    PolyMesh *w4 = new PolyMesh((char *)w4_path.c_str());
-
-    // wall materials - gentle colored walls for GI / color bleeding
-    // re-use your mat_wall2..mat_wall7 fields (safe if declared on Scene)
-	/*
-    mat_wall2 = Phong(); mat_wall2.ambient = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 1.0f); mat_wall2.diffuse = mat_wall2.ambient; mat_wall2.BRDF_d = mat_wall2.diffuse; mat_wall2.BRDF_d.scale(scaling); mat_wall2.power = 40.0f;
-    mat_wall3 = Phong(); mat_wall3.ambient = Colour(247.0/255.0, 198.0/255.0, 198.0/255.0, 1.0f); mat_wall3.diffuse = mat_wall3.ambient; mat_wall3.BRDF_d = mat_wall3.diffuse; mat_wall3.BRDF_d.scale(scaling); mat_wall3.power = 40.0f;
-    mat_wall4 = Phong(); mat_wall4.ambient = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 1.0f); mat_wall4.diffuse = mat_wall4.ambient; mat_wall4.BRDF_d = mat_wall4.diffuse; mat_wall4.BRDF_d.scale(scaling); mat_wall4.power = 40.0f;
-    mat_wall5 = Phong(); mat_wall5.ambient = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 1.0f); mat_wall5.diffuse = mat_wall5.ambient; mat_wall5.BRDF_d = mat_wall5.diffuse; mat_wall5.BRDF_d.scale(scaling); mat_wall5.power = 40.0f;
-    mat_wall6 = Phong(); mat_wall6.ambient = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 1.0f); mat_wall6.diffuse = mat_wall6.ambient; mat_wall6.BRDF_d = mat_wall6.diffuse; mat_wall6.BRDF_d.scale(scaling); mat_wall6.power = 40.0f;
-    mat_wall7 = Phong(); mat_wall7.ambient = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 1.0f); mat_wall7.diffuse = mat_wall7.ambient; mat_wall7.BRDF_d = mat_wall7.diffuse; mat_wall7.BRDF_d.scale(scaling); mat_wall7.power = 40.0f;
-	*/
-    // Cornell box walls
-    // Left = red, Right = green, others = white
-    Phong* redWall = new Phong();
-	Phong* greenWall = new Phong();
-	Phong* whiteWall = new Phong();
-    redWall->ambient   = Colour(0.75f, 0.0f, 0.0f, 1.0f);
-    redWall->diffuse   = redWall->ambient; redWall->BRDF_d = redWall->diffuse; redWall->BRDF_d.scale(scaling);
-    redWall->power     = 40.0f;
-    redWall->reflective = false; redWall->transparent = false;
-
-    greenWall->ambient = Colour(0.0f, 0.75f, 0.0f, 1.0f);
-    greenWall->diffuse = greenWall->ambient; greenWall->BRDF_d = greenWall->diffuse; greenWall->BRDF_d.scale(scaling);
-    greenWall->power   = 40.0f;
-    greenWall->reflective = false; greenWall->transparent = false;
-
-    whiteWall->ambient = Colour(1.0f, 1.0f, 1.0f, 1.0f);
-    whiteWall->diffuse = whiteWall->ambient; whiteWall->BRDF_d = whiteWall->diffuse; whiteWall->BRDF_d.scale(scaling);
-    whiteWall->power   = 40.0f;
-    whiteWall->reflective = false; whiteWall->transparent = false;
-
-    fl->material = whiteWall; fl->material->transparent = false; fl->material->reflective = false;
-    ce->material = whiteWall; ce->material->transparent = false; ce->material->reflective = false;
-    w1->material = whiteWall; w1->material->transparent = false; w1->material->reflective = false;
-    w2->material = greenWall; w2->material->transparent = false; w2->material->reflective = false;
-    w3->material = redWall; w3->material->transparent = false; w3->material->reflective = false;
-    w4->material = whiteWall; w4->material->transparent = false; w4->material->reflective = false;
-
-    // ---- link objects into the scene linked-list ----
-    // order: teapot -> mirror cube -> glass sphere -> metal ball -> floor -> ceiling -> walls...
-    object_list = std::unique_ptr<Object>(pm);
-    //if (mirrorCube) {
-    //    pm->next = mirrorCube;
-    //    mirrorCube->next = glassSphere;
-    //} else {
-        pm->next = std::unique_ptr<Object>(glassSphere);
-    //}
-	//object_list = glassSphere;
-    glassSphere->next = std::unique_ptr<Object>(metalBall);
-    metalBall->next = std::unique_ptr<Object>(fl);
-    fl->next = std::unique_ptr<Object>(ce);
-    ce->next = std::unique_ptr<Object>(w1);
-    w1->next = std::unique_ptr<Object>(w2);
-    w2->next = std::unique_ptr<Object>(w3);
-    w3->next = std::unique_ptr<Object>(w4);
-    w4->next = nullptr;
-
-    // ---- lights ----
-    // Ceiling area-like light (single point light at ceiling center)
-    Vertex ceilingLightPos = Vertex(0.0f, 1.8f, 0.0f); // near ceiling
-    Colour white = Colour(1.0f, 1.0f, 1.0f, 1.0f);
-    // sampling vector used by your PointLight (small jitter)
-    Vector ceilingSampling = Vector(0.02f, 0.02f, 0.5f);
-    PointLight *pl_ceiling = new PointLight(ceilingLightPos, white, ceilingSampling);
-
-    // small side light to create bright caustics through the glass sphere
-    Vertex causticLightPos = Vertex(-0.6f, 1.2f, 0.8f);
-    // a tighter sampling (more directional) to concentrate caustics
-    Vector causticSampling = Vector(0.0f, 0.0f, 1.0f);
-    PointLight *pl_caustic = new PointLight(causticLightPos, white, causticSampling);
-
-	// sphere is at 0.8, 0.7, 4.0, w a radius of 0.9
-	//Vertex pt = Vertex(-0.1, 0.7, 4.0);
-	//Vector dir = Vector(1.0, 0.0, 0.0);
-	//PointLight *pl = new PointLight(pt, white, dir);
-
-	// sphere - light to get direction for photons
-	// (0.8, 0.7, 4.0) - (0.0, 1.8, 0.0) = (0.8, -1.1, 4.0)
-	// - (-0.6, 1.2, 0.8) = (1.4, -0.5, 3.2)
-
-    // chain lights
-    light_list = std::unique_ptr<PointLight>(pl_ceiling);
-    light_list->next = std::unique_ptr<PointLight>(pl_caustic);
-    pl_caustic->next = nullptr;
-}
-
-void Scene::dragon() {
-	// read in the dragon model
-	string resourceDir = RESOURCE_DIR;
-	
-	// The following transform allows 4D homogeneous coordinates to be transformed. It moves the supplied teapot model to somewhere visible.
-	Transform *transform = new Transform(1.0f, 0.0f, 0.0f,  0.0f,
-			0.0f, 0.0f, 1.0f, -2.7f,
-			0.0f, 1.0f, 0.0f, 5.0f,
-			0.0f, 0.0f, 0.0f, 1.0f);
-
-	//  Read in the teapot model.
-	//PolyMesh *pm = new PolyMesh((char *)"teapot_smaller.ply", transform);
-
-	std::string dragon_path = resourceDir + "/dragon_vrip.ply";
-    PolyMesh *dragon = new PolyMesh((char *)dragon_path.c_str());//, transform);
-
-	float scaling = 1.0/M_PI;
-
-	// rgb(244, 250, 252)
-	//Phong glass; 
-	glass.ambient = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
-	glass.diffuse = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
-	glass.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	glass.BRDF_d = glass.diffuse;
-	glass.BRDF_d.scale(scaling);
-	glass.power = 40.0f;
-
-	dragon->material = &glass;
-    dragon->material->transparent = false;
-    dragon->material->reflective = false;
-	dragon->material->eta = 1.5; //glass refractive index
-	dragon->material->kr = 0.4;
-
-	dragon->next = nullptr;
-
-	//creates a light source
-	Vertex v1 = Vertex(-1.0, 1.0, 10.0);
-	Colour c = Colour(1.0f, 1.0f, 1.0f, 1.0f);
-	Vector d = Vector(0.01f, 0.01f, 1.0f);
-
-	//Vertex sampling = v;
-	//sampling.sub(v1);
-
-	//cout << "sampling: " << sampling.x << ", " << sampling.y << ", " << sampling.z;
-
-	PointLight *pl = new PointLight(v1, c, d);
-
-	// define object_list and light_list
-
-	object_list = std::unique_ptr<Object>(dragon);
-	object_list->next = nullptr;
-	light_list = std::unique_ptr<PointLight>(pl);
-	light_list->next = nullptr;
-
 }
 
 Colour Scene::background_colour(float depth) {
 	//Colour colour = Colour(163.0/255.0, 249.0/255.0, 255.0/255.0, 1.0f);
-	// I like rgb(163, 249, 255)
+	// I like rgb(163, 249, 255), but it's so bright it drowns out all the other colours in the scene. fix?
 	depth = 15.0f;
-	Colour colour = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 1.0f);
+    Colour colour = Colour(0.0f, 0.0f, 0.0f, 1.0f);
+	// Colour colour = Colour(163.0/255.0, 249.0/255.0, 255.0/255.0, 1.0f);
 	return colour;
 }
 
@@ -620,12 +345,10 @@ void Scene::object_intersection(Ray ray, Hit &best_hit) {
 	best_hit.flag = false;
 
 	while(obj != 0) {
-
 		Hit obj_hit;
 		obj_hit.flag=false;
 
 		obj->intersection(ray, obj_hit);
-		
 		// if we have an intersection and it's in front of the camera
 		if (obj_hit.flag && obj_hit.t > 0.0f) {
 			// if this is the first hit or closest hit
@@ -983,18 +706,18 @@ Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit)
 		Colour reflection = get_reflection_colour(ray, best_hit, ref_limit);
 		colour.add(reflection);
 	}
-*/
+
 	// this is L_c, caustic
 	if (causticTree) {
 		vector<Photon*> causticNeighbours;
 		//std::cout << "we have a caustic tree" << std::endl;
-		causticTree->kNearest(best_hit.position, 50, causticNeighbours);
+		causticTree->kNearest(best_hit.position, 20, causticNeighbours);
 		Colour caustic = gather_diffuse(best_hit, causticNeighbours);
-		float photon_boost = 1000.0;
-		caustic.scale(photon_boost);
+		//float photon_boost = 1000.0;
+		//caustic.scale(photon_boost);
 		colour.add(caustic);
 	}
-/*
+*/
 	// this is L_d, diffuse
 	if (globalTree) {
 		//std::cout << "we have a global tree" << std::endl;
@@ -1007,7 +730,7 @@ Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit)
 		Colour diffuse_reflection = gather_diffuse_reflection(ray, best_hit, globalNeighbours);
 		colour.add(diffuse_reflection);
 	}
-*/	
+
 	return colour;
 }
 
@@ -1059,7 +782,6 @@ inline void log_deposit_simple(int id,
 //doesn't emit towards specular surfaces, it emits in random directions then checks if the intersection is specular
 //traces a single photon through the scene, saves them in causticPhotons and globalPhotons
 void Scene::photon_trace(Photon *photon, int ref_limit) {
-
 	bool saw_specular = false;
 	Ray photon_ray;
 	photon->ray(photon_ray);
@@ -1133,16 +855,9 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 
 /// creates caustic and global photon maps, saves them in causticTree and globalTree
 void Scene::create_photon_maps() {
-
+cerr << "starting create_photon_maps" << endl;
 	causticPhotons.clear();
 	globalPhotons.clear();
-
-	// add somewhere that runs once before emitting photons
-	{
-    	std::ofstream ofs("deposits.csv"); // truncates old file
-    	ofs << "id,x,y,z,dirx,diry,dirz,intensity.r,intensity.g,intensity.b\n";
-	}
-
 
 	PointLight *light = light_list.get();
 	int no_of_photons = 100000;
@@ -1155,19 +870,19 @@ void Scene::create_photon_maps() {
 			
 			// (0.8, 0.7, 4.0) - (0.0, 1.8, 0.0) = (0.8, -1.1, 4.0)
 			// - (-0.6, 1.2, 0.8) = (1.4, -0.5, 3.2)
-			/*
+			
 			if (n < no_of_photons/10) {
 				//Vector temp = Vector(0.8, 0.8, 2.8);
 				Vector temp = Vector(0.8, -1.1, 4.0);
 				temp.normalise();
-				photon->direction = temp;
+				photon.direction = temp;
 			}
 			else if (n < no_of_photons/5) {
 				Vector temp = Vector(1.4, -0.5, 3.2);
 				temp.normalise();
-				photon->direction = temp;
+				photon.direction = temp;
 			}
-			*/
+			
 			photon_trace(&photon, 15);
             // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
             light = static_cast<PointLight*>(light->next.get());

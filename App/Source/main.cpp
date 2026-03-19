@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <filesystem>
 
 //#include "hit.h"
 //#include "ray.h"
@@ -39,8 +40,8 @@ int main() {
 	cout << ctime(&timestamp);
 
     // create a framebuffer
-    int width = 1280; 
-	int height = 1280; // 1280
+    int width = 512; 
+	int height = 512; // 1280
     FrameBuffer *fb = new FrameBuffer(width,height);
 
 	srand (time(NULL)); //initialises random seed
@@ -48,9 +49,7 @@ int main() {
 	//create a scene 
 	Scene scene = Scene();
 	//scene.test();
-	//scene.teapot_box();
-	//scene.dragon();
-	scene.cornell_tea_party();
+	scene.teapot_box();
 	scene.create_photon_maps();
 
     // create a ray starting at (0,0,0) to use for the camera
@@ -60,6 +59,7 @@ int main() {
 	ray.position.z = 0.0f;
 
 	std::cout << "(width, height) = (" << width << ", " << height << ")" << std::endl;
+    std::filesystem::create_directories("images");
 
     // loop through every pixel in the screen
     for (int y = 0; y < height; y += 1) {
@@ -90,8 +90,10 @@ int main() {
 		}
 		cerr << "Progress: " << y << "/" << height << "\n" << flush;
 	}
+    char filename[64];
+    std::strftime(filename, sizeof(filename), "images/render_%Y%m%d_%H%M%S.ppm", localtime(&timestamp));
 	// write framebuffer to a ppm file
-	fb->writeRGBFile((char *)"test.ppm");
+	fb->writeRGBFile(filename);
 
 	time(&timestamp);
 

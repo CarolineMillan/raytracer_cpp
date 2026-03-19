@@ -25,6 +25,7 @@ Changes I made:
     - broke up the project into lots of smaller helper functions, rather than the handful of massive ones I had before
     - moved code into subdirectories
     - used a project template to strucure the project
+- added smart pointers to avoid memory leaks
 
 ## Installation and Running the Path Tracer
 
@@ -36,13 +37,14 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 
 ## Future Plans:
 
-- [ ] smart pointers
+- [X] smart pointers
 - [ ] proper importance sampling (right now I've just hard coded some photons to fire at specular objects, also for k-NN on globalTree)
 - [ ] phong interpolation for meshes
-- [ ] added in constructors and deconstructors
-- [ ] operator overloading for vector and vertex
+- [X] added in constructors and deconstructors
+- [ ] helper functions for vector and vertex
 - [ ] a cli
-- [ ] 
+- [ ] store photon maps between renders (the whole point of photon mapping)
+- [ ] add some features from Peter Shirley's ray tracing in one weekend (BVH, camera model, antialiasing, perhaps noise and procedural generation)
 
 ## Acknowledgements
 

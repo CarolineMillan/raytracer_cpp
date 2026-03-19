@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <memory>
 
 #include "polymesh.h"
 
@@ -18,9 +19,9 @@ using namespace std;
 
 PolyMesh::PolyMesh(char *file)
 {
-  Transform *transform = new Transform();
+  auto transform = std::make_unique<Transform>();
 
-  this->do_construct(file, transform);
+  this->do_construct(file, transform.get());
 }
 
 PolyMesh::PolyMesh(char *file, Transform *transform)
@@ -111,6 +112,7 @@ void PolyMesh::do_construct(char *file, Transform *transform)
   vertex_normal = new Vector[vertex_count];
 
   int i;
+    cerr << "vertex_count: " << vertex_count << ", triangle_count: " << triangle_count << endl;
 
   for (i = 0; i < vertex_count; i += 1)
   {
@@ -129,9 +131,11 @@ void PolyMesh::do_construct(char *file, Transform *transform)
 
     vertex[i].w = 1.0f;
 
+
     transform->apply(vertex[i]);
 
-    //std::cout << "vertex[i]: " << vertex[i].x << ", " << vertex[i].y << ", " << vertex[i].z << std::endl;
+
+    //cerr << "vertex[" << i << "]: " << vertex[i].x << ", " << vertex[i].y << ", " << vertex[i].z << endl;
   }
 
   for (i = 0; i < triangle_count; i += 1)
@@ -165,7 +169,7 @@ void PolyMesh::do_construct(char *file, Transform *transform)
   
   meshfile.close();
   cerr << "Meshfile read." << endl;
-  next = 0;
+  next = nullptr;
 }
 
 
