@@ -37,7 +37,7 @@ Scene::~Scene() {
     // Delete all lights in your linked-list:
     Light *pl = light_list.get();
     while (pl) {
-        Light *next = pl->next;
+        Light *next = pl->next.get();
         delete pl;
         pl = next;
     }
@@ -545,7 +545,7 @@ void Scene::cornell_tea_party() {
 
     // chain lights
     light_list = std::unique_ptr<PointLight>(pl_ceiling);
-    light_list->next = pl_caustic;
+    light_list->next = std::unique_ptr<PointLight>(pl_caustic);
     pl_caustic->next = nullptr;
 }
 
@@ -668,7 +668,7 @@ void Scene::point_light_intersection(Ray ray, PointLight*& pl, float &depth, boo
 		}
 
         // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
-		light = static_cast<PointLight*>(light->next);
+		light = static_cast<PointLight*>(light->next.get());
 	}
 	return;
 }
@@ -793,7 +793,7 @@ Colour Scene::get_shadow_colour(Ray ray, Hit best_hit, int ref_limit) {
 		
 		// move on to the next light
         // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
-		light = static_cast<PointLight*>(light->next);
+		light = static_cast<PointLight*>(light->next.get());
 	}
 	return colour;
 }
@@ -1170,7 +1170,7 @@ void Scene::create_photon_maps() {
 			*/
 			photon_trace(&photon, 15);
             // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
-            light = static_cast<PointLight*>(light->next);
+            light = static_cast<PointLight*>(light->next.get());
 		}
 		light = light_list.get();
 		if (n % (no_of_photons/100) == 0) { 

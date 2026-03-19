@@ -47,7 +47,7 @@ Photon::Photon()
 
 }
 
-Photon::Photon(PointLight L, int no_of_photons)
+Photon::Photon(const PointLight& L, int no_of_photons)
 {
 	//generate a random photon at light source
 	this->start_pt = L.point;

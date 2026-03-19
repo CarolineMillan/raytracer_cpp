@@ -13,13 +13,15 @@
 #include "../../utils/vector.h"
 #include "../../core/colour.h"
 
+#include <memory>
+
 class Light {
 public:
-	Light *next;
+    std::unique_ptr<Light> next;
 
 	Light()
 	{
-		next = (Light *)0;
+		next = nullptr;
 	}
 
     virtual ~Light(){};

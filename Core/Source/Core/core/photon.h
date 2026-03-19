@@ -36,7 +36,7 @@ public:
 
 
 	Photon();
-	Photon(PointLight L, int no_of_photons); //generate a photon at the light source
+	Photon(const PointLight& L, int no_of_photons); //generate a photon at the light source
 	void ray(Ray &r); //generates a ray to model the photon
 	void g_russian_roulette(Hit h);
 	void c_russian_roulette(Hit h);
