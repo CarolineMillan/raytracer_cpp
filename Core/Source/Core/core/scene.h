@@ -34,6 +34,7 @@ public:
 
 
 	Phong glass;
+    Phong metal;
 	Phong  mat_sphere;
   	Phong  mat_wall1;
   	Phong  mat_wall3;	

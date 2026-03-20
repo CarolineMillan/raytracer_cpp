@@ -78,7 +78,7 @@ int main() {
 			Hit h = Hit();
 
             // do a raytrace
-			scene.raytrace(ray, colour, depth, 4, h);
+			scene.raytrace(ray, colour, depth, 2, h);
 
             // plot it in the framebuffer
 			fb->plotPixel(x, y, colour.r, colour.g, colour.b);

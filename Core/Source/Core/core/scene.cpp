@@ -68,12 +68,23 @@ void Scene::teapot_box() {
 
 	// rgb(244, 250, 252)
 	//Phong glass; 
-	glass.ambient = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
-	glass.diffuse = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
+	glass.ambient = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 255.0/255.0);
+	glass.diffuse = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 255.0/255.0);
 	glass.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	glass.BRDF_d = glass.diffuse;
 	glass.BRDF_d.scale(scaling);
-	glass.power = 40.0f;
+	glass.power = 200.0f;
+    
+    //Phong metal;
+    metal.ambient = Colour(0.0f, 0.0f, 0.0f, 1.0f);
+    metal.diffuse = Colour(0.0f, 0.0f, 0.0f, 1.0f);  // metals have no diffuse
+    metal.specular = Colour(0.9f, 0.85f, 0.7f, 1.0f); // warm gold tint
+    metal.BRDF_d = Colour(0.0f, 0.0f, 0.0f, 1.0f);
+    metal.power = 200.0f;  // very sharp highlights
+    metal.reflective = true;
+    metal.transparent = false;
+    metal.kr = 0.95f;  // almost perfect mirror
+    metal.kt = 0.0f;
 
     //Phong bp1; 
 	// rgb(211, 141, 255)
@@ -84,7 +95,7 @@ void Scene::teapot_box() {
 	mat_pm.BRDF_d = mat_pm.diffuse;
 	mat_pm.BRDF_d.scale(scaling);
 	mat_pm.power = 40.0f;
-    */
+    
     // teapot - dark ceramic
     mat_pm.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
     mat_pm.diffuse = Colour(0.3f, 0.25f, 0.2f, 1.0f); // warm dark brown
@@ -92,53 +103,80 @@ void Scene::teapot_box() {
     mat_pm.power = 80.0f;
     mat_pm.reflective = true;
     mat_pm.kr = 0.08f;
+    */
+    mat_pm.ambient = Colour(0.1f, 0.09f, 0.08f, 1.0f);
+    mat_pm.diffuse = Colour(0.85f, 0.82f, 0.75f, 1.0f);
+    mat_pm.specular = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+    mat_pm.power = 80.0f;
+    mat_pm.reflective = true;
+    mat_pm.kr = 0.08f;
+    mat_pm.kt = 0.0f;
 	mat_pm.BRDF_d = mat_pm.diffuse;
 	mat_pm.BRDF_d.scale(scaling);
 
 	// rgb(255, 252, 230)
 	//Phong bp2;
-	mat_wall2.ambient = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
-	mat_wall2.diffuse = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
-	mat_wall2.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+    // floor - light grey
+    mat_wall2.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
+    mat_wall2.diffuse = Colour(0.7f, 0.7f, 0.7f, 1.0f);
+    mat_wall2.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
+    mat_wall2.power = 20.0f;
+	//mat_wall2.ambient = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
+	//mat_wall2.diffuse = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
+	//mat_wall2.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_wall2.BRDF_d = mat_wall2.diffuse;
 	mat_wall2.BRDF_d.scale(scaling);
-	mat_wall2.power = 40.0f;
+	//mat_wall2.power = 40.0f;
 
 	// rgb(247, 198, 198)
 	//Phong bp3;
-	mat_wall3.ambient = Colour(247.0/255.0, 198.0/255.0, 198.0/255.0, 255.0/255.0);
+	/*mat_wall3.ambient = Colour(247.0/255.0, 198.0/255.0, 198.0/255.0, 255.0/255.0);
 	mat_wall3.diffuse = Colour(247.0/255.0, 198.0/255.0, 198.0/255.0, 255.0/255.0);
 	mat_wall3.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_wall3.BRDF_d = mat_wall3.diffuse;
 	mat_wall3.BRDF_d.scale(scaling);
-	mat_wall3.power = 40.0f;
+	mat_wall3.power = 40.0f;*/
 
 	// rgb(199, 247, 198)
 	//Phong bp4;
-	mat_wall4.ambient = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
+	/*mat_wall4.ambient = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
 	mat_wall4.diffuse = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
 	mat_wall4.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_wall4.BRDF_d = mat_wall4.diffuse;
 	mat_wall4.BRDF_d.scale(scaling);
-	mat_wall4.power = 40.0f;
+	mat_wall4.power = 40.0f;*/
+
+    mat_wall3 = mat_wall2;
+    mat_wall4 = mat_wall2;
+    mat_wall7 = mat_wall2;
 
 	// rgb(198, 242, 247)
 	//Phong bp5;
-	mat_wall5.ambient = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
-	mat_wall5.diffuse = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
-	mat_wall5.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+    // left wall - red
+    mat_wall5.ambient = Colour(0.05f, 0.0f, 0.0f, 1.0f);
+    mat_wall5.diffuse = Colour(0.7f, 0.0f, 0.0f, 1.0f);
+    mat_wall5.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
+    mat_wall5.power = 20.0f;
+	//mat_wall5.ambient = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
+	//mat_wall5.diffuse = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
+	//mat_wall5.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_wall5.BRDF_d = mat_wall5.diffuse;
 	mat_wall5.BRDF_d.scale(scaling);
-	mat_wall5.power = 40.0f;
+	//mat_wall5.power = 40.0f;
 
 	// rgb(255, 176, 249)
 	//Phong bp6;
-	mat_wall6.ambient = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
-	mat_wall6.diffuse = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
-	mat_wall6.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+    //// right wall - green
+    mat_wall6.ambient = Colour(0.0f, 0.05f, 0.0f, 1.0f);
+    mat_wall6.diffuse = Colour(0.0f, 0.7f, 0.0f, 1.0f);
+    mat_wall6.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
+    mat_wall6.power = 20.0f;
+	//mat_wall6.ambient = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
+	//mat_wall6.diffuse = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
+	//mat_wall6.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_wall6.BRDF_d = mat_wall6.diffuse;
 	mat_wall6.BRDF_d.scale(scaling);
-	mat_wall6.power = 40.0f;
+	//mat_wall6.power = 40.0f;
 
 	// rgb(180, 169, 245)
 	//Phong bp7;
@@ -147,7 +185,7 @@ void Scene::teapot_box() {
 	mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_wall7.BRDF_d = mat_wall7.diffuse;
 	mat_wall7.BRDF_d.scale(scaling);
-	mat_wall7.power = 40.0f;
+	mat_wall7.power = 20.0f;
 
     pm->material = &mat_pm;
     //pm->material->transparent = false;
@@ -159,14 +197,23 @@ void Scene::teapot_box() {
     Vertex v;
 	v.x = 1.0f;
 	v.y = 1.0f;
-	v.z = 3.0f;
-    Sphere *sphere = new Sphere(v, 1.0f);
+	v.z = 4.4f;
+    Sphere *sphere = new Sphere(v, 0.5f);
 
     sphere->material = &glass;
     sphere->material->transparent = true;
     sphere->material->reflective = true;
 	sphere->material->eta = 1.5; //glass refractive index
 	sphere->material->kr = 0.4;
+
+
+    Vertex v2;
+	v.x = -1.0f;
+	v.y = -3.0f;
+	v.z = 2.0f;
+    
+    Sphere *sphere2 = new Sphere(v2, 0.5f);
+    sphere2->material = &metal;
 
     //pm->next = std::unique_ptr<Object>(sphere);
 
@@ -215,7 +262,8 @@ void Scene::teapot_box() {
     w4->material->transparent = false;
     w4->material->reflective = false;
 
-	sphere->next = std::unique_ptr<Object>(fl);
+	sphere->next = std::unique_ptr<Object>(sphere2);
+	sphere2->next = std::unique_ptr<Object>(fl);
 	fl->next = std::unique_ptr<Object>(ce);
 	ce->next = std::unique_ptr<Object>(w1);
 	w1->next = std::unique_ptr<Object>(w2);
@@ -225,9 +273,9 @@ void Scene::teapot_box() {
 
 
 	//creates a light source
-	Vertex v1 = Vertex(-1.0, 1.0, -1.0);
-	Colour c = Colour(1.0f, 1.0f, 1.0f, 1.0f);
-	Vector d = Vector(0.01f, 0.01f, 1.0f);
+	Vertex v1 = Vertex(0.0, 4.5, 0.0); //Vertex(-1.0, 1.0, -1.0);
+	Colour c = Colour(2.0f, 2.0f, 2.0f, 1.0f);
+	Vector d = Vector(0.0f, -1.0f, 0.0f);
 
 
 	Vertex sampling = v;
@@ -239,13 +287,28 @@ void Scene::teapot_box() {
 
 	PointLight *pl = new PointLight(v1, c, d);
 
+    // these two lights are AI generated
+    // fill light - from the left to lift shadows on the right side
+    Vertex fillLightPos = Vertex(-4.0f, 0.0f, 4.0f);
+    Colour fillIntensity = Colour(0.8f, 0.8f, 0.8f, 1.0f); // dimmer than main
+    Vector fillDir = Vector(1.0f, 0.0f, 0.0f);
+    PointLight *pl_fill = new PointLight(fillLightPos, fillIntensity, fillDir);
+
+    // rim light - from behind to separate objects from background
+    Vertex rimLightPos = Vertex(0.0f, 2.0f, 9.0f);
+    Colour rimIntensity = Colour(0.5f, 0.5f, 0.5f, 1.0f); // dimmest
+    Vector rimDir = Vector(0.0f, 0.0f, -1.0f);
+    PointLight *pl_rim = new PointLight(rimLightPos, rimIntensity, rimDir);
+
 	// define object_list and light_list
 	//object_list = pm;
 	//object_list->next = sphere;
 	object_list = std::unique_ptr<Object>(pm);
 	object_list->next = std::unique_ptr<Object>(sphere);
 	light_list = std::unique_ptr<PointLight>(pl);
-	light_list->next = nullptr;
+    light_list->next = std::unique_ptr<Light>(pl_fill);
+    pl_fill->next = std::unique_ptr<Light>(pl_rim);
+	pl_rim->next = nullptr;
 }
 
 
@@ -611,7 +674,7 @@ Colour Scene::gather_diffuse(const Hit hit, const vector<Photon*> globalNeighbou
 	}
 
 	if (r>0) {
-		float r_clamped = max(0.05f, min(r, 2.0f));
+		float r_clamped = max(0.02f, min(r, 0.5f));
 		dA = M_PI * r_clamped * r_clamped; //area of disc associated with sphere
 		//if (dA > 190.0) cout << "dA: " << dA;
 		float scaling = (1.0/dA);
@@ -620,7 +683,7 @@ Colour Scene::gather_diffuse(const Hit hit, const vector<Photon*> globalNeighbou
 
 	//cout << "diffuse: " << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << endl;
 				
-	float photon_boost = 1000.0;
+	float photon_boost = 10.0;
 	diffuse.scale(photon_boost);
 	return diffuse;
 }
@@ -733,7 +796,7 @@ Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit)
 	if (globalTree) {
 		//std::cout << "we have a global tree" << std::endl;
 		vector<Photon*> globalNeighbours;	
-		globalTree->kNearest(best_hit.position, 20, globalNeighbours);
+		globalTree->kNearest(best_hit.position, 5, globalNeighbours);
 
 		Colour diffuse = gather_diffuse(best_hit, globalNeighbours);
 		colour.add(diffuse);
@@ -878,11 +941,11 @@ cerr << "starting create_photon_maps" << endl;
 	globalPhotons.clear();
 
 	PointLight *light = light_list.get();
-	int no_of_photons = 1000000;
+	int no_of_photons = 100000;
 	causticPhotons.reserve(no_of_photons);
 	globalPhotons.reserve(no_of_photons);
 	for (int n = 0; n < no_of_photons; n++) {
-		while (light != (PointLight*) 0) {
+		while (light != nullptr) {
 			//trace a photon through the scene and store all the hits in a kd tree - how to go through specular objects only?
 			Photon photon(*light, no_of_photons);
 			
