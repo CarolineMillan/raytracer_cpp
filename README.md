@@ -53,3 +53,8 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 - kdtree.h and ```~Scene()``` were AI-assisted, the rest is my own work
 
 ## Licence
+
+
+## notes
+
+- whitted ray tracer part uses fresnel equations, but the photon mapping uses russian roulette to decide on reflection vs transmission. fresnel equations are physically correct and russian roulette uses randomness and is considered simpler. Maybe change this to make both parts of the ray tracer consistant with each other.

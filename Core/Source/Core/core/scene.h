@@ -53,9 +53,7 @@ public:
 
 	void test();
 
-	void cornell_tea_party();
-
-	void dragon();
+	void cornell_box();
 
 	Colour background_colour(float depth);
 
@@ -67,7 +65,7 @@ public:
 
 	Ray get_shadow_ray(Vector ldir, Hit &best_hit);
 
-	void refract_ray(const Ray &incoming, Hit &hit, Ray &refracted, bool &total_internal_reflection);
+	void refract_ray(const Ray &incoming, Hit &hit, Ray &refracted, bool &total_internal_reflection, float &kr_out, float &kt_out);
 
 	void reflect_ray(const Ray &incoming, Hit &hit, Ray &reflected);
 

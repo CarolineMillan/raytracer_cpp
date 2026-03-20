@@ -56,6 +56,9 @@ void Sphere::intersection(Ray ray, Hit &hit)
 		hit.normal.y = hit.position.y - center.y;
 		hit.normal.z = hit.position.z - center.z;
 		hit.normal.normalise();
+        if(hit.normal.dot(ray.direction) > 0.0) {
+            hit.normal.negate();
+        }
 		hit.flag = true;
 		return;
 	}
@@ -68,6 +71,9 @@ void Sphere::intersection(Ray ray, Hit &hit)
 	hit.normal.y = hit.position.y - center.y;
 	hit.normal.z = hit.position.z - center.z;
 	hit.normal.normalise();
+    if(hit.normal.dot(ray.direction) > 0.0) {
+        hit.normal.negate();
+    }
 	hit.flag = true;
 	return;
 }
