@@ -57,14 +57,16 @@ Photon::Photon(const PointLight& L, int no_of_photons)
 	this->direction = L.direction;
 
 	//generate a random direction
-	do {
+	//do {
 		//generate random direction until you get one that's lit
 		//srand (time(NULL)); //initialises random seed, moved to main. double check this
-		direction.x = (rand() % 100000)/100000.0f;
-		direction.y = (rand() % 100000)/100000.0f;
-		direction.z = (rand() % 100000)/100000.0f;
+		direction.x = ((rand() % 200000) - 100000)/100000.0f;
+		direction.y = ((rand() % 200000) - 100000)/100000.0f;
+		direction.z = ((rand() % 200000) - 100000)/100000.0f;
+//    cerr << "direction before normalise: " << direction.x << ", " 
+//     << direction.y << ", " << direction.z << endl;
 		direction.normalise();
-	} while (direction.len_sqr() > 1.0f);
+	//} while (direction.len_sqr() > 1.0f);
 
 	shadow = false;
 	reflected = false;

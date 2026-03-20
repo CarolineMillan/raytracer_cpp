@@ -77,12 +77,23 @@ void Scene::teapot_box() {
 
     //Phong bp1; 
 	// rgb(211, 141, 255)
+    /*
 	mat_pm.ambient = Colour(207.0/255.0, 207.0/255.0, 207.0/255.0, 255.0/255.0);
 	mat_pm.diffuse = Colour(207.0/255.0, 207.0/255.0, 207.0/255.0, 255.0/255.0);
 	mat_pm.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_pm.BRDF_d = mat_pm.diffuse;
 	mat_pm.BRDF_d.scale(scaling);
 	mat_pm.power = 40.0f;
+    */
+    // teapot - dark ceramic
+    mat_pm.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
+    mat_pm.diffuse = Colour(0.3f, 0.25f, 0.2f, 1.0f); // warm dark brown
+    mat_pm.specular = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+    mat_pm.power = 80.0f;
+    mat_pm.reflective = true;
+    mat_pm.kr = 0.08f;
+	mat_pm.BRDF_d = mat_pm.diffuse;
+	mat_pm.BRDF_d.scale(scaling);
 
 	// rgb(255, 252, 230)
 	//Phong bp2;
@@ -139,11 +150,11 @@ void Scene::teapot_box() {
 	mat_wall7.power = 40.0f;
 
     pm->material = &mat_pm;
-    pm->material->transparent = false;
-    pm->material->reflective = true;
-	pm->material->eta = 1.5; //glass refractive index
-	pm->material->kr = 0.4;
-	pm->material->kt = 0.95;
+    //pm->material->transparent = false;
+    //pm->material->reflective = true;
+	//pm->material->eta = 1.5; //glass refractive index
+	//pm->material->kr = 0.1;
+	//pm->material->kt = 0.95;
 
     Vertex v;
 	v.x = 1.0f;
@@ -609,8 +620,8 @@ Colour Scene::gather_diffuse(const Hit hit, const vector<Photon*> globalNeighbou
 
 	//cout << "diffuse: " << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << endl;
 				
-	//float photon_boost = 1000.0;
-	//diffuse.scale(photon_boost);
+	float photon_boost = 1000.0;
+	diffuse.scale(photon_boost);
 	return diffuse;
 }
 
@@ -684,7 +695,7 @@ Colour Scene::gather_diffuse_reflection(Ray ray, Hit best_hit, vector<Photon*> g
 Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit) {
 
 	Colour colour = Colour();
-/*
+
 	// get colour of the material we've hit
 	best_hit.what->material->compute_base_colour(colour);
 
@@ -713,22 +724,22 @@ Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit)
 		//std::cout << "we have a caustic tree" << std::endl;
 		causticTree->kNearest(best_hit.position, 20, causticNeighbours);
 		Colour caustic = gather_diffuse(best_hit, causticNeighbours);
-		//float photon_boost = 1000.0;
+		//float photon_boost = 100.0;
 		//caustic.scale(photon_boost);
 		colour.add(caustic);
 	}
-*/
+
 	// this is L_d, diffuse
 	if (globalTree) {
 		//std::cout << "we have a global tree" << std::endl;
 		vector<Photon*> globalNeighbours;	
-		globalTree->kNearest(best_hit.position, 5, globalNeighbours);
+		globalTree->kNearest(best_hit.position, 20, globalNeighbours);
 
 		Colour diffuse = gather_diffuse(best_hit, globalNeighbours);
 		colour.add(diffuse);
 
-		Colour diffuse_reflection = gather_diffuse_reflection(ray, best_hit, globalNeighbours);
-		colour.add(diffuse_reflection);
+		//Colour diffuse_reflection = gather_diffuse_reflection(ray, best_hit, globalNeighbours);
+		//colour.add(diffuse_reflection);
 	}
 
 	return colour;
@@ -804,6 +815,13 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 			photon->direction = photon_ray.direction;
 			photon->BRDF_d = best_hit.what->material->BRDF_d;
 			globalPhotons.push_back(*photon);
+            
+            // print first 10 deposits to see where they're landing
+            if (globalPhotons.size() < 10) {
+                cerr << "global photon at: " << best_hit.position.x 
+                     << ", " << best_hit.position.y 
+                     << ", " << best_hit.position.z << endl;
+            }
 
 			if (saw_specular) {
 				// ensure photon has an id; if not, use pointer address as fallback:
@@ -825,7 +843,7 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 				saw_specular = false;
 			}
 			photon->g_russian_roulette(best_hit);
-			//break;
+			break;
 		} else {
 			saw_specular = true;
 			photon->c_russian_roulette(best_hit);
@@ -860,7 +878,7 @@ cerr << "starting create_photon_maps" << endl;
 	globalPhotons.clear();
 
 	PointLight *light = light_list.get();
-	int no_of_photons = 100000;
+	int no_of_photons = 1000000;
 	causticPhotons.reserve(no_of_photons);
 	globalPhotons.reserve(no_of_photons);
 	for (int n = 0; n < no_of_photons; n++) {
@@ -870,7 +888,7 @@ cerr << "starting create_photon_maps" << endl;
 			
 			// (0.8, 0.7, 4.0) - (0.0, 1.8, 0.0) = (0.8, -1.1, 4.0)
 			// - (-0.6, 1.2, 0.8) = (1.4, -0.5, 3.2)
-			
+			/*
 			if (n < no_of_photons/10) {
 				//Vector temp = Vector(0.8, 0.8, 2.8);
 				Vector temp = Vector(0.8, -1.1, 4.0);
@@ -882,7 +900,7 @@ cerr << "starting create_photon_maps" << endl;
 				temp.normalise();
 				photon.direction = temp;
 			}
-			
+			*/
 			photon_trace(&photon, 15);
             // only using point lights so cast to a PointLight, this will need to be changed if you use different types of lights
             light = static_cast<PointLight*>(light->next.get());
