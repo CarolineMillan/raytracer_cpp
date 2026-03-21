@@ -132,9 +132,9 @@ int FrameBuffer::writeRGBFile(char *filename)
   for (int j = 0; j<  this->width*this->height; j += 1)
   {
     unsigned char pixel[3];
-    pixel[0] = static_cast<unsigned char>(((framebuffer[j].red   - min) / diff) * 255.0f);
-    pixel[1] = static_cast<unsigned char>(((framebuffer[j].green - min) / diff) * 255.0f);
-    pixel[2] = static_cast<unsigned char>(((framebuffer[j].blue  - min) / diff) * 255.0f);
+    pixel[0] = static_cast<unsigned char>(sqrt(((framebuffer[j].red   - min) / diff)) * 255.0f);
+    pixel[1] = static_cast<unsigned char>(sqrt(((framebuffer[j].green - min) / diff)) * 255.0f);
+    pixel[2] = static_cast<unsigned char>(sqrt(((framebuffer[j].blue  - min) / diff)) * 255.0f);
 
     outfile.write(reinterpret_cast<char*>(pixel), 3);
 

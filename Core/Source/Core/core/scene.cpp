@@ -198,9 +198,9 @@ void Scene::cornell_box() {
 
     Vertex v;
 	v.x = 0.0f;
-	v.y = -2.0f;
+	v.y = 0.0f;
 	v.z = 5.0f;
-    Sphere *sphere = new Sphere(v, 0.5f);
+    Sphere *sphere = new Sphere(v, 1.5f);
 
     sphere->material = &glass;
     sphere->material->transparent = true;
@@ -963,8 +963,8 @@ Colour Scene::gather_diffuse(const Hit hit, const vector<Photon*> globalNeighbou
 
 	//cout << "diffuse: " << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << endl;
 				
-	float photon_boost = 100.0;
-	diffuse.scale(photon_boost);
+	//float photon_boost = 100.0;
+	//diffuse.scale(photon_boost);
 	return diffuse;
 }
 
@@ -1038,7 +1038,7 @@ Colour Scene::gather_diffuse_reflection(Ray ray, Hit best_hit, vector<Photon*> g
 Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit) {
 
 	Colour colour = Colour();
-/*
+
 	// get colour of the material we've hit
 	best_hit.what->material->compute_base_colour(colour);
 
@@ -1060,7 +1060,7 @@ Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit)
 		Colour reflection = get_reflection_colour(ray, best_hit, ref_limit);
 		colour.add(reflection);
 	}
-*/
+
 	// this is L_c, caustic
 	if (causticTree && !best_hit.what->material->reflective && !best_hit.what->material->transparent) {
 		vector<Photon*> causticNeighbours;
@@ -1219,7 +1219,7 @@ cerr << "starting create_photon_maps" << endl;
 	globalPhotons.clear();
 
 	PointLight *light = light_list.get();
-	int no_of_photons = 1000000;
+	int no_of_photons = 100000;
 	causticPhotons.reserve(no_of_photons);
 	globalPhotons.reserve(no_of_photons);
 	for (int n = 0; n < no_of_photons; n++) {
@@ -1232,7 +1232,12 @@ cerr << "starting create_photon_maps" << endl;
 			
 			if (n < no_of_photons * 0.4f) {
 				//Vector temp = Vector(0.8, 0.8, 2.8);
-				Vector temp = Vector(0.0f, -1.0f, 0.0f);
+				//Vector temp = Vector(0.0f, -1.0f, 0.0f);
+                Vector temp = Vector(
+    ((rand() % 20000) - 10000)/100000.0f,  // small x variation
+    -1.0f,                                   // mostly downward
+    ((rand() % 20000) - 10000)/100000.0f   // small z variation
+);
 				temp.normalise();
 				photon.direction = temp;
 			}
