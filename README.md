@@ -27,6 +27,9 @@ Changes I made:
     - used a project template to strucure the project
 - added smart pointers to avoid memory leaks
 - removed gather_diffuse_reflection (this sped up the photon mapping and made it about 4x faster) (there was something else you did that drastically increased the speed -- look back and check what it was)
+- added in gamma correction (uesd sqrt as an approximation for the actual formula)
+- added in antialiasing
+- fixed Phong normal interpolation (most of it was there, it was just adding the calculations into the final normal calculation) to make polymeshes smooth. I made this an optional thing via a boolean on PolyMesh. [scratchapixel](https://scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection.html) was useful for finding the fix here. 
 
 ## Installation and Running the Path Tracer
 
@@ -59,3 +62,4 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 ## notes
 
 - whitted ray tracer part uses fresnel equations, but the photon mapping uses russian roulette to decide on reflection vs transmission. fresnel equations are physically correct and russian roulette uses randomness and is considered simpler. Maybe change this to make both parts of the ray tracer consistant with each other.
+- Phong Illumination model is the ambient + diffuse + specular equation that you use to calculate the colour. Phong Shading (or normal interpolation) is the inerpolation you do using barycentric coordinates on triangles to smooth the polymesh. Two different concepts named after the same guy.

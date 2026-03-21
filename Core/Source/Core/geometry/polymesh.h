@@ -21,6 +21,7 @@ public:
 	Vector *face_normal;
 	Vector *vertex_normal;
 	TriangleIndex *triangle;
+    bool smooth_shading = false;
 
 	void do_construct(char *file, Transform *transform);
 	float test_edge(Vector &normal, Vertex &p, Vertex &v1, Vertex &v0);
@@ -28,7 +29,7 @@ public:
 	void intersection(Ray ray, Hit &hit);
 	void compute_face_normal(int which_triangle, Vector &normal);
 	void compute_vertex_normals(void);
-	bool rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vector &v1, const Vector &v2, float &t);
+	bool rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vector &v1, const Vector &v2, float &t, float &u, float &v);
         PolyMesh(char *file);
 	PolyMesh(char *file, Transform *transform);
 	~PolyMesh();

@@ -182,7 +182,7 @@ PolyMesh::~PolyMesh() {
 
 
 // Moller-Trumbore
-bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vector &v1, const Vector &v2, float &t)
+bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vector &v1, const Vector &v2, float &t, float &u, float &v)
 {
 
   //std::cout << "ray: " << ray << std::endl;
@@ -190,7 +190,7 @@ bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vect
   Vector p;
   Vector d;
   Vector e1,e2,h,s,q;
-  float a,f,u,v;
+  float a,f; //,u,v;
 
   p.x = ray.position.x;
   p.y = ray.position.y;
@@ -316,7 +316,7 @@ void PolyMesh::triangle_intersection(Ray ray, Hit &hit, int which_triangle)
   o.z = ray.position.z;
   float t,u,v;
 
-  hit.flag =  rayTriangleIntersect(ray, v0, v1, v2, t) ;
+  hit.flag =  rayTriangleIntersect(ray, v0, v1, v2, t, u, v) ;
 
   if (hit.flag == false) return;
   
@@ -333,7 +333,16 @@ void PolyMesh::triangle_intersection(Ray ray, Hit &hit, int which_triangle)
   hit.what = this;
   hit.position = p;
 
-  hit.normal = face_normal[which_triangle];
+    // use u and v to interpolate to get the normal
+  //hit.normal = face_normal[which_triangle];
+    if (smooth_shading) {
+        float w = 1.0f - u - v;
+        hit.normal = w * vertex_normal[triangle[which_triangle][0]] 
+                   + u * vertex_normal[triangle[which_triangle][1]] 
+                   + v * vertex_normal[triangle[which_triangle][2]];
+    } else {
+        hit.normal = face_normal[which_triangle];
+    }
 
   hit.normal.normalise();
 

@@ -333,6 +333,7 @@ void Scene::teapot_box() {
 	std::string teapotPath = resourceDir + "/teapot_smaller.ply";
     PolyMesh *pm = new PolyMesh((char *)teapotPath.c_str(), transform.get());
 
+    pm->smooth_shading = true;
 	//creates Phong surface illumination model for polymesh
 
 	float scaling = 1.0/M_PI;
