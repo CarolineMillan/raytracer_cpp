@@ -65,24 +65,35 @@ int main() {
     // loop through every pixel in the screen
     for (int y = 0; y < height; y += 1) {
 		for (int x = 0; x < width; x += 1) {
-			// fire a ray into the scene
-            float fx = (float)x/(float)width;
-			float fy = (float)y/(float)height;
-			Vector direction;
-			ray.direction.x = (fx-0.5f);
-			ray.direction.y = (0.5f-fy);
-			ray.direction.z = 0.5f;
-			ray.direction.normalise();
-			Colour colour;
-			float depth = 0;
+            // for antialiasing, take several samples then average the result
+            int samples = 4;
+            Colour total;
+            float depth = 0;
+            
+            for (int i = 0; i < samples; i++) {
+                // fire a ray into the scene, add a random offset
+                float fx = ((float)x + (rand() % 1000)/1000.0f)/(float)width;
+                float fy = ((float)y + (rand() % 1000)/1000.0f)/(float)height;
+                Vector direction;
+                ray.direction.x = (fx-0.5f);
+                ray.direction.y = (0.5f-fy);
+                ray.direction.z = 0.5f;
+                ray.direction.normalise();
+                Colour colour;
+                depth = 0;
 
-			Hit h = Hit();
+                Hit h = Hit();
 
-            // do a raytrace
-			scene.raytrace(ray, colour, depth, 4, h);
+                // do a raytrace
+                scene.raytrace(ray, colour, depth, 4, h);
+                total.add(colour);
+            }
+
+            float invert = 1.0f / samples;
+            total.scale(invert);
 
             // plot it in the framebuffer
-			fb->plotPixel(x, y, colour.r, colour.g, colour.b);
+			fb->plotPixel(x, y, total.r, total.g, total.b);
 			fb->plotDepth(x,y, depth);
 		}
 		if (y % (width/10) == 0) {

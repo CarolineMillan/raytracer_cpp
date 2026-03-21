@@ -26,6 +26,7 @@ Changes I made:
     - moved code into subdirectories
     - used a project template to strucure the project
 - added smart pointers to avoid memory leaks
+- removed gather_diffuse_reflection (this sped up the photon mapping and made it about 4x faster) (there was something else you did that drastically increased the speed -- look back and check what it was)
 
 ## Installation and Running the Path Tracer
 

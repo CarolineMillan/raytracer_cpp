@@ -548,7 +548,7 @@ void Scene::teapot_box() {
 
 	//creates a light source
 	Vertex v1 = Vertex(0.0, 4.5, 0.0); //Vertex(-1.0, 1.0, -1.0);
-	Colour c = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+	Colour c = Colour(0.5f, 0.5f, 0.5f, 1.0f);
 	Vector d = Vector(0.0f, -1.0f, 0.0f);
 
 
@@ -564,13 +564,13 @@ void Scene::teapot_box() {
     // these two lights are AI generated
     // fill light - from the left to lift shadows on the right side
     Vertex fillLightPos = Vertex(-4.0f, 0.0f, 4.0f);
-    Colour fillIntensity = Colour(0.8f, 0.8f, 0.8f, 1.0f); // dimmer than main
+    Colour fillIntensity = Colour(0.4f, 0.4f, 0.4f, 1.0f); // dimmer than main
     Vector fillDir = Vector(1.0f, 0.0f, 0.0f);
     PointLight *pl_fill = new PointLight(fillLightPos, fillIntensity, fillDir);
 
     // rim light - from behind to separate objects from background
     Vertex rimLightPos = Vertex(0.0f, 2.0f, 9.0f);
-    Colour rimIntensity = Colour(0.5f, 0.5f, 0.5f, 1.0f); // dimmest
+    Colour rimIntensity = Colour(0.2f, 0.2f, 0.2f, 1.0f); // dimmest
     Vector rimDir = Vector(0.0f, 0.0f, -1.0f);
     PointLight *pl_rim = new PointLight(rimLightPos, rimIntensity, rimDir);
 
