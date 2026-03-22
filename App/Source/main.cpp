@@ -49,8 +49,8 @@ int main() {
 	//create a scene 
 	Scene scene = Scene();
 	//scene.test();
-	scene.teapot_box();
-    //scene.cornell_box();
+	//scene.teapot_box();
+    scene.cornell_box();
 	scene.create_photon_maps();
 
     // create a ray starting at (0,0,0) to use for the camera

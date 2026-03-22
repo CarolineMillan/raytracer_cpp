@@ -8,8 +8,8 @@
 
 //SCALE THE COLOUR SO ITS BETWEEN 0 AND 1
 /* TODO:
- * - barycentric coordinates to interpolate normals to get a smooth surface (calculate normals at shared vertices of triangles and interpolate these)
- * - scale the colour at some point t keep it between 0 and 1
+ * - [X] barycentric coordinates to interpolate normals to get a smooth surface (calculate normals at shared vertices of triangles and interpolate these)
+ * - [ ] scale the colour at some point t keep it between 0 and 1
  */
 
 #include "photon.h"
@@ -99,8 +99,8 @@ void Photon::g_russian_roulette(Hit h)
 	if(h.flag)
 	{
 		float kr, kt, P;
-		kr = h.what->material->kr;
-		kt = h.what->material->kt;
+		kr = h.what->material->get_kr();
+		kt = h.what->material->get_kt();
 		P = 1-kr;
 
 		if(w <= 90)
@@ -144,7 +144,7 @@ void Photon::c_russian_roulette(Hit h)
 	{
 		//printf("hello");
 		float kt, P;
-		kt = h.what->material->kt;
+		kt = h.what->material->get_kt();
 		P = 1-kt;
 
 		//if(w <= 90)

@@ -19,23 +19,9 @@ using namespace std;
 class Material {
 public:
 
-	bool reflective;
-	bool transparent;
-	float eta;
-	float kr, kt;
-
-	Colour BRDF_s, BRDF_d;
-
-    Material(){
-        reflective = false;
-        transparent = false;
-        eta = 1.0;
-        kr = 0.0;
-        kt = 0.0;
-    };
+    Material(){};
 
     virtual ~Material(){};
-
 
 	virtual void compute_base_colour(Colour &result)
 	{
@@ -49,4 +35,14 @@ public:
 		result.g = 0.0f;
 		result.b = 0.0f;
 	}
+    virtual Colour get_diffuse_BRDF() {
+        return Colour();
+    };
+
+    virtual bool is_reflective() { return false; };
+    virtual bool is_transparent() { return false; };
+    virtual float get_eta() {return 1.0f;};
+    virtual float get_kt() {return 0.0f;};
+    virtual float get_kr() {return 0.0f;};
+    virtual Colour get_tint() {return Colour(1.0f, 1.0f, 1.0f, 1.0f);}; 
 };

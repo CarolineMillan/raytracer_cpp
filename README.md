@@ -43,12 +43,15 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 
 - [X] smart pointers
 - [ ] proper importance sampling (right now I've just hard coded some photons to fire at specular objects, also for k-NN on globalTree)
-- [ ] phong interpolation for meshes
+- [X] phong interpolation for meshes
 - [X] added in constructors and deconstructors
 - [ ] helper functions for vector and vertex
 - [ ] a cli
 - [ ] store photon maps between renders (the whole point of photon mapping)
 - [ ] add some features from Peter Shirley's ray tracing in one weekend (BVH, camera model, antialiasing, perhaps noise and procedural generation)
+- [X] delete ```BRDF_s```, which should be used as the specular BRDF for the caustic photon map. I used the diffuse BRDF here instead, as an approximation/simplification. Perhaps add in specular BRDF in future.
+- [X] add in other material subclasses
+- [ ] sort ```use namespace std``` and ```pragma once``` statements
 
 ## Acknowledgements
 
@@ -63,3 +66,13 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 
 - whitted ray tracer part uses fresnel equations, but the photon mapping uses russian roulette to decide on reflection vs transmission. fresnel equations are physically correct and russian roulette uses randomness and is considered simpler. Maybe change this to make both parts of the ray tracer consistant with each other.
 - Phong Illumination model is the ambient + diffuse + specular equation that you use to calculate the colour. Phong Shading (or normal interpolation) is the inerpolation you do using barycentric coordinates on triangles to smooth the polymesh. Two different concepts named after the same guy.
+
+
+
+materials stuff:
+- added in get_diffuse_BRDF() method on Material
+- added in is_reflective() and is_transparent() methods on Material (this means that each material has it's own built in property, and they can't be set manually in the scene setup ie once i've defined a material it can't be tampered with outside of the class)
+- delete BRDF_d on Material
+- delete reflective and transparent on Material
+- created Glass and Metal child classes of Material
+- made hard coded importance sampling a circle rather than a square -- still need to do it properly

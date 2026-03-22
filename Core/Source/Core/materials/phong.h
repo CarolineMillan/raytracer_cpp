@@ -25,8 +25,11 @@ public:
 	float  power;
 
     Phong();
+    Phong(Colour diffuse, Colour ambient, Colour specular, float power);
 
 	void compute_base_colour(Colour &result);
 
 	void compute_light_colour(Vector &viewer, Vector &normal, Vector &ldir, Colour &result);
+
+    Colour get_diffuse_BRDF();
 };

@@ -9,6 +9,8 @@
 #include "../utils/transform.h"
 #include "../geometry/polymesh.h"
 #include "../materials/phong.h"
+#include "../materials/glass.h"
+#include "../materials/metal.h"
 #include "../geometry/sphere.h"
 #include "../geometry/lights/directional_light.h"
 #include "../geometry/lights/point_light.h"
@@ -62,31 +64,26 @@ void Scene::cornell_box() {
 
 	//creates Phong surface illumination model for polymesh
 
-	float scaling = 1.0/M_PI;
+	//float scaling = 1.0/M_PI;
 
 	// rgb(244, 250, 252)
 	//Phong glass; 
-    glass.ambient = Colour(0.02f, 0.02f, 0.02f, 1.0f);
+    //glass.ambient = Colour(0.02f, 0.02f, 0.02f, 1.0f);
 //	glass.ambient = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 255.0/255.0);
-	glass.diffuse = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 255.0/255.0);
-	glass.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	glass.BRDF_d = glass.diffuse;
-	glass.BRDF_d.scale(scaling);
-	glass.power = 200.0f;
-    glass.reflective = true;
-    glass.transparent = true;
-    glass.kt = 0.9f;
+	//glass.diffuse = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 255.0/255.0);
+	//glass.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	//glass.power = 200.0f;
+    //glass.kt = 0.9f;
     //Phong metal;
-    metal.ambient = Colour(0.1f, 0.05f, 0.0f, 1.0f); // warm dark ambient
+    //metal.ambient = Colour(0.1f, 0.05f, 0.0f, 1.0f); // warm dark ambient
     //metal.ambient = Colour(0.0f, 0.0f, 0.0f, 1.0f);
-    metal.diffuse = Colour(0.0f, 0.0f, 0.0f, 1.0f);  // metals have no diffuse
-    metal.specular = Colour(0.9f, 0.85f, 0.7f, 1.0f); // warm gold tint
-    metal.BRDF_d = Colour(0.0f, 0.0f, 0.0f, 1.0f);
-    metal.power = 200.0f;  // very sharp highlights
-    metal.reflective = true;
-    metal.transparent = false;
-    metal.kr = 0.95f;  // almost perfect mirror
-    metal.kt = 0.0f;
+    //metal.diffuse = Colour(0.0f, 0.0f, 0.0f, 1.0f);  // metals have no diffuse
+    //metal.specular = Colour(0.9f, 0.85f, 0.7f, 1.0f); // warm gold tint
+    //metal.power = 200.0f;  // very sharp highlights
+    //metal.kr = 0.95f;  // almost perfect mirror
+    //metal.kt = 0.0f;
+    glass = Glass();
+    metal = Metal();
 
     //Phong bp1; 
 	// rgb(211, 141, 255)
@@ -119,15 +116,18 @@ void Scene::cornell_box() {
 	// rgb(255, 252, 230)
 	//Phong bp2;
     // floor - light grey
-    mat_wall2.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
-    mat_wall2.diffuse = Colour(0.7f, 0.7f, 0.7f, 1.0f);
-    mat_wall2.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
+    //mat_wall2.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
+    //mat_wall2.diffuse = Colour(0.7f, 0.7f, 0.7f, 1.0f);
+    //mat_wall2.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
+    // white wall
+mat_wall2.ambient = Colour(0.1f, 0.1f, 0.1f, 1.0f);
+mat_wall2.diffuse = Colour(0.9f, 0.9f, 0.9f, 1.0f);
+mat_wall2.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
+mat_wall2.power = 20.0f;
     mat_wall2.power = 20.0f;
 	//mat_wall2.ambient = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
 	//mat_wall2.diffuse = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
 	//mat_wall2.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall2.BRDF_d = mat_wall2.diffuse;
-	mat_wall2.BRDF_d.scale(scaling);
 	//mat_wall2.power = 40.0f;
 
 	// rgb(247, 198, 198)
@@ -162,8 +162,6 @@ void Scene::cornell_box() {
 	//mat_wall5.ambient = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
 	//mat_wall5.diffuse = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
 	//mat_wall5.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall5.BRDF_d = mat_wall5.diffuse;
-	mat_wall5.BRDF_d.scale(scaling);
 	//mat_wall5.power = 40.0f;
 
 	// rgb(255, 176, 249)
@@ -176,18 +174,14 @@ void Scene::cornell_box() {
 	//mat_wall6.ambient = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
 	//mat_wall6.diffuse = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
 	//mat_wall6.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall6.BRDF_d = mat_wall6.diffuse;
-	mat_wall6.BRDF_d.scale(scaling);
 	//mat_wall6.power = 40.0f;
 
 	// rgb(180, 169, 245)
 	//Phong bp7;
-	mat_wall7.ambient = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
-	mat_wall7.diffuse = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
-	mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall7.BRDF_d = mat_wall7.diffuse;
-	mat_wall7.BRDF_d.scale(scaling);
-	mat_wall7.power = 20.0f;
+	//mat_wall7.ambient = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
+	//mat_wall7.diffuse = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
+	//mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	//mat_wall7.power = 20.0f;
 
     //pm->material = &mat_pm;
     //pm->material->transparent = false;
@@ -196,18 +190,13 @@ void Scene::cornell_box() {
 	//pm->material->kr = 0.1;
 	//pm->material->kt = 0.95;
 
-    Vertex v;
-	v.x = 0.0f;
-	v.y = 0.0f;
-	v.z = 5.0f;
-    Sphere *sphere = new Sphere(v, 1.5f);
+    Vertex v = Vertex(0.0f, 0.0, 5.0f);
+	//v.x = 0.0f;
+	//v.y = 0.0f;
+	//v.z = 5.0f;
+    Sphere *sphere = new Sphere(v, 2.0f);
 
     sphere->material = &glass;
-    sphere->material->transparent = true;
-    sphere->material->reflective = true;
-	sphere->material->eta = 1.5; //glass refractive index
-	sphere->material->kr = 0.4;
-
 
     //Vertex v2;
 	//v2.x = -1.0f;
@@ -241,28 +230,16 @@ void Scene::cornell_box() {
 
 	
 	fl->material = &mat_wall2;
-    fl->material->transparent = false;
-    fl->material->reflective = false;
 
 	ce->material = &mat_wall3;
-    ce->material->transparent = false;
-    ce->material->reflective = false;
 
 	w1->material = &mat_wall4;
-    w1->material->transparent = false;
-    w1->material->reflective = false;
 
 	w2->material = &mat_wall5;
-    w2->material->transparent = false;
-    w2->material->reflective = false;
 	
 	w3->material = &mat_wall6;
-    w3->material->transparent = false;
-    w3->material->reflective = false;
 
 	w4->material = &mat_wall7;
-    w4->material->transparent = false;
-    w4->material->reflective = false;
 
 	sphere->next = std::unique_ptr<Object>(fl);
 	fl->next = std::unique_ptr<Object>(ce);
@@ -275,7 +252,7 @@ void Scene::cornell_box() {
 
 	//creates a light source
 	Vertex v1 = Vertex(0.0, 4.5, 5.0); //Vertex(-1.0, 1.0, -1.0);
-	Colour c = Colour(2.0f, 2.0f, 2.0f, 2.0f);
+	Colour c = Colour(0.5f, 0.5f, 0.5f, 1.0f);
 	Vector d = Vector(0.0f, -1.0f, 0.0f);
 
 
@@ -291,13 +268,13 @@ void Scene::cornell_box() {
     // these two lights are AI generated
     // fill light - from the left to lift shadows on the right side
     Vertex fillLightPos = Vertex(-4.0f, 0.0f, 4.0f);
-    Colour fillIntensity = Colour(0.8f, 0.8f, 0.8f, 1.0f); // dimmer than main
+    Colour fillIntensity = Colour(0.4f, 0.4f, 0.4f, 1.0f); // dimmer than main
     Vector fillDir = Vector(1.0f, 0.0f, 0.0f);
     // PointLight *pl_fill = new PointLight(fillLightPos, fillIntensity, fillDir);
 
     // rim light - from behind to separate objects from background
     Vertex rimLightPos = Vertex(0.0f, 2.0f, 9.0f);
-    Colour rimIntensity = Colour(0.5f, 0.5f, 0.5f, 1.0f); // dimmest
+    Colour rimIntensity = Colour(0.2f, 0.2f, 0.2f, 1.0f); // dimmest
     Vector rimDir = Vector(0.0f, 0.0f, -1.0f);
     // PointLight *pl_rim = new PointLight(rimLightPos, rimIntensity, rimDir);
 
@@ -310,8 +287,6 @@ void Scene::cornell_box() {
     light_list->next = nullptr; // = std::unique_ptr<PointLight>(pl_fill);
 //    pl_fill->next = std::unique_ptr<PointLight>(pl_rim);
 //    pl_rim->next = nullptr;
-    cerr << "sphere position: " << v.x << ", " << v.y << ", " << v.z << endl;
-cerr << "light position: " << v1.x << ", " << v1.y << ", " << v1.z << endl;
 }
 
 // TODO shorten the teapot_box() and test() method
@@ -340,26 +315,21 @@ void Scene::teapot_box() {
 
 	// rgb(244, 250, 252)
 	//Phong glass; 
-    glass.ambient = Colour(0.02f, 0.02f, 0.02f, 1.0f);
+    //glass.ambient = Colour(0.02f, 0.02f, 0.02f, 1.0f);
 //	glass.ambient = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 255.0/255.0);
-	glass.diffuse = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 255.0/255.0);
-	glass.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	glass.BRDF_d = glass.diffuse;
-	glass.BRDF_d.scale(scaling);
-	glass.power = 200.0f;
-    glass.reflective = true;
-    glass.transparent = true;
+	//glass.diffuse = Colour(0.0/255.0, 0.0/255.0, 0.0/255.0, 255.0/255.0);
+	//glass.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
+	//glass.power = 200.0f;
     //Phong metal;
-    metal.ambient = Colour(0.1f, 0.05f, 0.0f, 1.0f); // warm dark ambient
+    //metal.ambient = Colour(0.1f, 0.05f, 0.0f, 1.0f); // warm dark ambient
     //metal.ambient = Colour(0.0f, 0.0f, 0.0f, 1.0f);
-    metal.diffuse = Colour(0.0f, 0.0f, 0.0f, 1.0f);  // metals have no diffuse
-    metal.specular = Colour(0.9f, 0.85f, 0.7f, 1.0f); // warm gold tint
-    metal.BRDF_d = Colour(0.0f, 0.0f, 0.0f, 1.0f);
-    metal.power = 200.0f;  // very sharp highlights
-    metal.reflective = true;
-    metal.transparent = false;
-    metal.kr = 0.95f;  // almost perfect mirror
-    metal.kt = 0.0f;
+    //metal.diffuse = Colour(0.0f, 0.0f, 0.0f, 1.0f);  // metals have no diffuse
+    //metal.specular = Colour(0.9f, 0.85f, 0.7f, 1.0f); // warm gold tint
+    //metal.power = 200.0f;  // very sharp highlights
+    //metal.kr = 0.95f;  // almost perfect mirror
+    //metal.kt = 0.0f;
+
+
 
     //Phong bp1; 
 	// rgb(211, 141, 255)
@@ -379,15 +349,15 @@ void Scene::teapot_box() {
     mat_pm.reflective = true;
     mat_pm.kr = 0.08f;
     */
-    mat_pm.ambient = Colour(0.1f, 0.09f, 0.08f, 1.0f);
-    mat_pm.diffuse = Colour(0.85f, 0.82f, 0.75f, 1.0f);
+    mat_pm.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
+    mat_pm.diffuse = Colour(0.3f, 0.25f, 0.2f, 1.0f); // warm dark brown
     mat_pm.specular = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+    //mat_pm.ambient = Colour(0.1f, 0.09f, 0.08f, 1.0f);
+    //mat_pm.diffuse = Colour(0.85f, 0.82f, 0.75f, 1.0f); // light ceramic
+    //mat_pm.specular = Colour(1.0f, 1.0f, 1.0f, 1.0f);
     mat_pm.power = 80.0f;
-    mat_pm.reflective = true;
-    mat_pm.kr = 0.08f;
-    mat_pm.kt = 0.0f;
-	mat_pm.BRDF_d = mat_pm.diffuse;
-	mat_pm.BRDF_d.scale(scaling);
+    //mat_pm.kr = 0.08f;
+    //mat_pm.kt = 0.0f;
 
 	// rgb(255, 252, 230)
 	//Phong bp2;
@@ -399,8 +369,6 @@ void Scene::teapot_box() {
 	//mat_wall2.ambient = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
 	//mat_wall2.diffuse = Colour(255.0/255.0, 252.0/255.0, 230.0/255.0, 255.0/255.0);
 	//mat_wall2.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall2.BRDF_d = mat_wall2.diffuse;
-	mat_wall2.BRDF_d.scale(scaling);
 	//mat_wall2.power = 40.0f;
 
 	// rgb(247, 198, 198)
@@ -435,8 +403,6 @@ void Scene::teapot_box() {
 	//mat_wall5.ambient = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
 	//mat_wall5.diffuse = Colour(198.0/255.0, 242.0/255.0, 247.0/255.0, 255.0/255.0);
 	//mat_wall5.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall5.BRDF_d = mat_wall5.diffuse;
-	mat_wall5.BRDF_d.scale(scaling);
 	//mat_wall5.power = 40.0f;
 
 	// rgb(255, 176, 249)
@@ -449,8 +415,6 @@ void Scene::teapot_box() {
 	//mat_wall6.ambient = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
 	//mat_wall6.diffuse = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
 	//mat_wall6.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall6.BRDF_d = mat_wall6.diffuse;
-	mat_wall6.BRDF_d.scale(scaling);
 	//mat_wall6.power = 40.0f;
 
 	// rgb(180, 169, 245)
@@ -458,34 +422,25 @@ void Scene::teapot_box() {
 	mat_wall7.ambient = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
 	mat_wall7.diffuse = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
 	mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall7.BRDF_d = mat_wall7.diffuse;
-	mat_wall7.BRDF_d.scale(scaling);
 	mat_wall7.power = 20.0f;
 
     pm->material = &mat_pm;
-    //pm->material->transparent = false;
-    //pm->material->reflective = true;
 	//pm->material->eta = 1.5; //glass refractive index
 	//pm->material->kr = 0.1;
 	//pm->material->kt = 0.95;
 
-    Vertex v;
-	v.x = 1.0f;
-	v.y = 1.0f;
-	v.z = 4.4f;
+    Vertex v = Vertex(1.0f, 1.0f, 4.4f);
+	//v.x = 1.0f;
+	//v.y = 1.0f;
+	//v.z = 4.4f;
     Sphere *sphere = new Sphere(v, 0.5f);
 
     sphere->material = &glass;
-    sphere->material->transparent = true;
-    sphere->material->reflective = true;
-	sphere->material->eta = 1.5; //glass refractive index
-	sphere->material->kr = 0.4;
+	//sphere->material->eta = 1.5; //glass refractive index
+	//sphere->material->kr = 0.4;
 
 
-    Vertex v2;
-	v2.x = -1.0f;
-	v2.y = 1.0f;
-	v2.z = 3.0f;
+    Vertex v2 = Vertex(-1.0f, 1.0f, 3.0f);
     
     Sphere *sphere2 = new Sphere(v2, 0.5f);
     sphere2->material = &metal;
@@ -514,28 +469,16 @@ void Scene::teapot_box() {
 
 	
 	fl->material = &mat_wall2;
-    fl->material->transparent = false;
-    fl->material->reflective = false;
 
 	ce->material = &mat_wall3;
-    ce->material->transparent = false;
-    ce->material->reflective = false;
 
 	w1->material = &mat_wall4;
-    w1->material->transparent = false;
-    w1->material->reflective = false;
 
 	w2->material = &mat_wall5;
-    w2->material->transparent = false;
-    w2->material->reflective = false;
 	
 	w3->material = &mat_wall6;
-    w3->material->transparent = false;
-    w3->material->reflective = false;
 
 	w4->material = &mat_wall7;
-    w4->material->transparent = false;
-    w4->material->reflective = false;
 
 	sphere->next = std::unique_ptr<Object>(sphere2);
 	sphere2->next = std::unique_ptr<Object>(fl);
@@ -553,6 +496,7 @@ void Scene::teapot_box() {
 	Vector d = Vector(0.0f, -1.0f, 0.0f);
 
 
+    // FIXME is this used? it gives you the direction to hard code importance sampling for the caustic photon map
 	Vertex sampling = v;
 	sampling.sub(v1);
 
@@ -586,7 +530,7 @@ void Scene::teapot_box() {
 	pl_rim->next = nullptr;
 }
 
-
+/*
 void Scene::test() {
 	
 	string resourceDir = RESOURCE_DIR;
@@ -626,21 +570,21 @@ void Scene::test() {
 
 	//p3 = bp6;
 
-	Vertex v;
-	v.x = -1.0f;
-	v.y = -1.0f;
-	v.z = 5.0f;
+	Vertex v = Vertex(-1.0f, -1.0f, 5.0f);
+	//v.x = -1.0f;
+	//v.y = -1.0f;
+	//v.z = 5.0f;
     Sphere *sphere = new Sphere(v, 1.0f);
 
     sphere->material = &mat_sphere;
-	/*
+	
     sphere->material->transparent = true;
     sphere->material->reflective = true;
 	sphere->material->eta = 1.5; //glass refractive index
 	sphere->material->kr = 0.4;
 	sphere->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
 	sphere->material->BRDF_d = Colour(0.0, 0.0, 0.0, 0.0);
-*/
+
 
 	string w1_path = resourceDir + "/wall1.ply";
 	PolyMesh *w1 = new PolyMesh((char *)w1_path.c_str());
@@ -677,7 +621,7 @@ void Scene::test() {
 	light_list = std::make_unique<PointLight>(pt, c, dir);
 	light_list->next = nullptr; 
 }
-
+*/
 Colour Scene::background_colour(float depth) {
 	//Colour colour = Colour(163.0/255.0, 249.0/255.0, 255.0/255.0, 1.0f);
 	// I like rgb(163, 249, 255), but it's so bright it drowns out all the other colours in the scene. fix?
@@ -763,7 +707,7 @@ Ray Scene::get_shadow_ray(Vector ldir, Hit &best_hit) {
 // takes a ray and a hit and outputs a refracted ray from the hit point. Also sets hit material's kr and kt values.
 void Scene::refract_ray(const Ray &incoming, Hit &hit, Ray &refracted, bool &total_internal_reflection, float &kr_out, float &kt_out) {
 
-	float eta = hit.what->material->eta;
+	float eta = hit.what->material->get_eta();
 
 	Vector n = hit.normal;
 	n.normalise();
@@ -873,35 +817,35 @@ Colour Scene::get_shadow_colour(Ray ray, Hit best_hit, int ref_limit) {
 }
 
 
-Colour Scene::get_refraction_colour(Ray ray, Hit hit, int ref_limit) {
+Colour Scene::get_refraction_colour(Ray ray, Hit hit, int ref_limit, float kt) {
 
 	Colour colour = Colour();
 	ref_limit -= 1;
 	if(ref_limit<0)	return colour;
 
-	Ray refracted;
-	bool total_internal_reflection = false;
-	float kr = 0.0f;
-    float kt = 0.0f;  // local variables for this ray
+	//Ray refracted;
+	//bool total_internal_reflection = false;
+	//float kr = 0.0f;
+    //float kt = 0.0f;  // local variables for this ray
 
-	refract_ray(ray, hit, refracted, total_internal_reflection, kr, kt);
+	//refract_ray(ray, hit, refracted, total_internal_reflection, kr, kt);
 //cerr << "kt: " << kt << ", tir: " << total_internal_reflection << endl;
 //cerr << "refracted colour: " << colour.r << ", " << colour.g << ", " << colour.b << endl;
-	if (!total_internal_reflection) {
+	//if (!total_internal_reflection) {
 
 		float trans_depth = hit.t;
 		Hit h = Hit();
 
 		//raytrace the refracted ray
-		raytrace(refracted, colour, trans_depth, ref_limit, h);
+		raytrace(ray, colour, trans_depth, ref_limit, h);
 		//scale colour by kt
 		colour.scale(kt);
-	}
+	//}
 	return colour;
 }
 
 
-Colour Scene::get_reflection_colour(Ray ray, Hit hit, int ref_limit) {
+Colour Scene::get_reflection_colour(Ray ray, Hit hit, int ref_limit, float kr) {
 
 	Colour colour = Colour();
 	ref_limit -= 1;
@@ -923,10 +867,10 @@ Colour Scene::get_reflection_colour(Ray ray, Hit hit, int ref_limit) {
 		raytrace(reflected, colour, ref_depth, ref_limit, h); 
 
        // cerr << "kr before scale: " << hit.what->material->kr << endl;
-colour.scale(hit.what->material->kr);
+        //float kr = hit.what->material->get_kr();
 
 		//scale colour by kr
-		colour.scale(hit.what->material->kr);
+		colour.scale(kr);
 	}
 	return colour;
 }
@@ -964,8 +908,8 @@ Colour Scene::gather_diffuse(const Hit hit, const vector<Photon*> globalNeighbou
 
 	//cout << "diffuse: " << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << endl;
 				
-	//float photon_boost = 100.0;
-	//diffuse.scale(photon_boost);
+	float photon_boost = 100.0;
+	diffuse.scale(photon_boost);
 	return diffuse;
 }
 
@@ -1050,31 +994,40 @@ Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit)
 	Colour shadow_colour = get_shadow_colour(ray, best_hit, ref_limit);
 	colour.add(shadow_colour);
 
+    float kr = best_hit.what->material->get_kr();
+    float kt = best_hit.what->material->get_kt();
+
 	// this is L_s, specular
-	if(best_hit.what->material->transparent)
+	if(best_hit.what->material->is_transparent())
 	{
-		Colour refraction = get_refraction_colour(ray, best_hit, ref_limit);
-		colour.add(refraction);
+        Ray refracted;
+        bool tir = false;
+        refract_ray(ray, best_hit, refracted, tir, kr, kt);
+
+        if (!tir) {
+            Colour refraction = get_refraction_colour(refracted, best_hit, ref_limit, kt);
+            colour.add(refraction);
+        }
 	}
 
-	if(best_hit.what->material->reflective)	{
-		Colour reflection = get_reflection_colour(ray, best_hit, ref_limit);
+	if(best_hit.what->material->is_reflective())	{
+		Colour reflection = get_reflection_colour(ray, best_hit, ref_limit, kr);
 		colour.add(reflection);
 	}
 
 	// this is L_c, caustic
-	if (causticTree && !best_hit.what->material->reflective && !best_hit.what->material->transparent) {
+	if (causticTree && !best_hit.what->material->is_reflective() && !best_hit.what->material->is_transparent()) {
 		vector<Photon*> causticNeighbours;
 		//std::cout << "we have a caustic tree" << std::endl;
 		causticTree->kNearest(best_hit.position, 20, causticNeighbours);
 		Colour caustic = gather_diffuse(best_hit, causticNeighbours);
-		float photon_boost = 100.0;
-		caustic.scale(photon_boost);
+		//float photon_boost = 100.0;
+		//caustic.scale(photon_boost);
 		colour.add(caustic);
 	}
 
 	// this is L_d, diffuse
-	if (globalTree && !best_hit.what->material->reflective && !best_hit.what->material->transparent) {
+	if (globalTree && !best_hit.what->material->is_reflective() && !best_hit.what->material->is_transparent()) {
 		//std::cout << "we have a global tree" << std::endl;
 		vector<Photon*> globalNeighbours;	
 		globalTree->kNearest(best_hit.position, 5, globalNeighbours);
@@ -1151,13 +1104,13 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 		if (!best_hit.flag) break;
 
 		photon->position = best_hit.position;
-		bool is_specular = best_hit.what->material->reflective || best_hit.what->material->transparent;
+		bool is_specular = best_hit.what->material->is_reflective() || best_hit.what->material->is_transparent();
 
 		if (!is_specular) {
 			// add to global and check for caustic
 			photon->position = best_hit.position;
 			photon->direction = photon_ray.direction;
-			photon->BRDF_d = best_hit.what->material->BRDF_d;
+			photon->BRDF_d = best_hit.what->material->get_diffuse_BRDF();
 			globalPhotons.push_back(*photon);
             
 			if (saw_specular) {
@@ -1176,9 +1129,11 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 				
 				//std::cout << "Depositing caustic photon on: " << best_hit.what << std::endl;
 				causticPhotons.push_back(*photon);
-    if (causticPhotons.size() < 4) {
-        cerr << "caustic deposited at: " << best_hit.position.x << ", " 
-             << best_hit.position.y << ", " << best_hit.position.z << endl;
+    if (causticPhotons.size() <= 20) {
+        cerr << "caustic deposited at: (" 
+             << best_hit.position.x << ", " 
+             << best_hit.position.y << ", " 
+             << best_hit.position.z << ")" << endl;
     }
 				// reset the caustic photon
 				saw_specular = false;
@@ -1188,6 +1143,21 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 		} else {
 			saw_specular = true;
 			photon->c_russian_roulette(best_hit);
+            
+            // debug
+            //
+static int reflect_count = 0;
+static int transmit_count = 0;
+if (photon->reflected) reflect_count++;
+if (photon->transmitted) transmit_count++;
+if ((reflect_count + transmit_count) % 1000 == 0) {
+    cerr << "reflect: " << reflect_count 
+         << " transmit: " << transmit_count 
+         << " ratio: " << (float)transmit_count/(reflect_count+transmit_count) 
+         << endl;
+}
+            // end debug
+
 			Ray new_ray;
 
 			if (photon->reflected) {
@@ -1232,6 +1202,22 @@ cerr << "starting create_photon_maps" << endl;
 			// - (-0.6, 1.2, 0.8) = (1.4, -0.5, 3.2)
 			
 			if (n < no_of_photons * 0.4f) {
+                
+                // AI generated importance sampling in a circle
+                // TODO change to proper importance sampling in future
+float dx, dz;
+do {
+    dx = ((rand() % 20000) - 10000)/100000.0f;
+    dz = ((rand() % 20000) - 10000)/100000.0f;
+} while (dx*dx + dz*dz > 0.01f);  // reject outside circle of radius 0.1
+
+Vector temp = Vector(dx, -1.0f, dz);
+temp.normalise();
+photon.direction = temp;
+
+                // -----------------------------------------
+
+/*
 				//Vector temp = Vector(0.8, 0.8, 2.8);
 				//Vector temp = Vector(0.0f, -1.0f, 0.0f);
                 Vector temp = Vector(
@@ -1241,6 +1227,7 @@ cerr << "starting create_photon_maps" << endl;
 );
 				temp.normalise();
 				photon.direction = temp;
+                */
 			}
 if (n < 3) {
         cerr << "photon direction: " << photon.direction.x << ", " 
@@ -1273,6 +1260,31 @@ if (n < 3) {
 		causticTree = new KDTree(causticPhotons);  // build once
 		std::cout << "caustic tree created..." << std::endl;
 	}
+
+    // this is all debug
+    if (!causticPhotons.empty()) {
+    float min_x = causticPhotons[0].position.x;
+    float max_x = causticPhotons[0].position.x;
+    float min_y = causticPhotons[0].position.y;
+    float max_y = causticPhotons[0].position.y;
+    float min_z = causticPhotons[0].position.z;
+    float max_z = causticPhotons[0].position.z;
+    
+    for (auto& p : causticPhotons) {
+        min_x = min(min_x, p.position.x);
+        max_x = max(max_x, p.position.x);
+        min_y = min(min_y, p.position.y);
+        max_y = max(max_y, p.position.y);
+        min_z = min(min_z, p.position.z);
+        max_z = max(max_z, p.position.z);
+    }
+    
+    cerr << "caustic photon bounds:" << endl;
+    cerr << "x: " << min_x << " to " << max_x << endl;
+    cerr << "y: " << min_y << " to " << max_y << endl;
+    cerr << "z: " << min_z << " to " << max_z << endl;
+}
+// end debug
 
 	if (!globalPhotons.empty()) {
 		delete globalTree;                        // in case it existed

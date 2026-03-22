@@ -16,6 +16,13 @@ Phong::Phong() {
     power = 0.0;
 };
 
+Phong::Phong(Colour diffuse, Colour ambient, Colour specular, float power) {
+    diffuse = diffuse;
+    ambient = ambient;
+    specular = specular;
+    power = power;
+};
+
 void Phong::compute_base_colour(Colour &result)
 {
 	result.r = ambient.r;
@@ -73,3 +80,9 @@ void Phong::compute_light_colour(Vector &viewer, Vector &normal, Vector &ldir, C
 	}
 }
 
+Colour Phong::get_diffuse_BRDF() {
+    float scaling = 1.0f/M_PI;
+    Colour result = diffuse;
+    result.scale(scaling);
+    return result;
+};

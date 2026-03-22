@@ -13,6 +13,8 @@
 #include "../geometry/lights/light.h"
 #include "../geometry/hit.h"
 #include "../materials/phong.h"
+#include "../materials/glass.h"
+#include "../materials/metal.h"
 #include "../geometry/lights/point_light.h"
 #include "photon.h"
 #include "../utils/kdtree.h"
@@ -33,8 +35,8 @@ public:
 	KDTree* globalTree;
 
 
-	Phong glass;
-    Phong metal;
+	Glass glass;
+    Metal metal;
 	Phong  mat_sphere;
   	Phong  mat_wall1;
   	Phong  mat_wall3;	
@@ -71,9 +73,9 @@ public:
 
 	Colour get_shadow_colour(Ray ray, Hit hit, int ref_limit);
 
-	Colour get_refraction_colour(Ray ray, Hit hit, int ref_limit);
+	Colour get_refraction_colour(Ray ray, Hit hit, int ref_limit, float kt);
 
-	Colour get_reflection_colour(Ray ray, Hit hit, int ref_limit);
+	Colour get_reflection_colour(Ray ray, Hit hit, int ref_limit, float kr);
 
 	Colour gather_diffuse(const Hit best_hit, const vector<Photon*> globalNeighbours);
 	
