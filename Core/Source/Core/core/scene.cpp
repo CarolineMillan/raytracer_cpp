@@ -50,7 +50,7 @@ void Scene::cornell_box() {
 
     string resourceDir = RESOURCE_DIR;
 
-    glass = Glass();
+    glass = Glass(1.5f, 0.9f, Colour(0.0f, 0.4f, 0.1f, 1.0f));
     metal = Metal();
 
     // white wall
@@ -80,7 +80,7 @@ mat_wall2.power = 20.0f;
 
 	// rgb(180, 169, 245)
 
-    Vertex v = Vertex(0.0f, 0.0, 5.0f);
+    Vertex v = Vertex(0.0f, 0.0, 7.0f);
     Sphere *sphere = new Sphere(v, 2.0f);
 
     sphere->material = &glass;
@@ -123,7 +123,7 @@ mat_wall2.power = 20.0f;
 
 
 	//creates a light source
-	Vertex v1 = Vertex(0.0, 4.5, 5.0); //Vertex(-1.0, 1.0, -1.0);
+	Vertex v1 = Vertex(0.0, 4.5, 7.0); //Vertex(-1.0, 1.0, -1.0);
 	Colour c = Colour(0.5f, 0.5f, 0.5f, 1.0f);
 	Vector d = Vector(0.0f, -1.0f, 0.0f);
 
@@ -745,6 +745,9 @@ Colour Scene::compute_colour(Ray ray, Hit best_hit, float &depth, int ref_limit)
 
         if (!tir) {
             Colour refraction = get_refraction_colour(refracted, best_hit, ref_limit, kt);
+            // only scale the refracted light by the tint
+            Colour tint = best_hit.what->material->get_tint();
+            refraction.scale(tint);
             colour.add(refraction);
         }
 	}
@@ -841,12 +844,6 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 				inc_dir.normalise();
 
 				causticPhotons.push_back(*photon);
-    if (causticPhotons.size() <= 20) {
-        cerr << "caustic deposited at: (" 
-             << best_hit.position.x << ", " 
-             << best_hit.position.y << ", " 
-             << best_hit.position.z << ")" << endl;
-    }
 				// reset the caustic photon
 				saw_specular = false;
 			}
@@ -870,6 +867,11 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
                 float unused_kr, unused_kt;  // local variables for this ray
                 refract_ray(photon_ray, best_hit, new_ray, tir, unused_kr, unused_kt);
 				photon_ray = new_ray;
+
+                // scale by the tint of the transparent object to get coloured caustics
+                Colour tint = best_hit.what->material->get_tint();
+                photon->intensity.scale(tint);
+
 				if (tir) {
                     // if total internal reflection, treat as mirror
                     reflect_ray(photon_ray, best_hit, new_ray);
@@ -883,7 +885,6 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 
 /// creates caustic and global photon maps, saves them in causticTree and globalTree
 void Scene::create_photon_maps() {
-cerr << "starting create_photon_maps" << endl;
 	causticPhotons.clear();
 	globalPhotons.clear();
 
