@@ -37,6 +37,11 @@ public:
 
 	Glass glass;
     Metal metal;
+    Phong white;
+    Phong green;
+    Phong red;
+
+    // old materials
 	Phong  mat_sphere;
   	Phong  mat_wall1;
   	Phong  mat_wall3;	

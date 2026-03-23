@@ -16,12 +16,7 @@ Phong::Phong() {
     power = 0.0;
 };
 
-Phong::Phong(Colour diffuse, Colour ambient, Colour specular, float power) {
-    diffuse = diffuse;
-    ambient = ambient;
-    specular = specular;
-    power = power;
-};
+Phong::Phong(Colour ambient, Colour diffuse, Colour specular, float power) : ambient(ambient), diffuse(diffuse), specular(specular), power(power) {};
 
 void Phong::compute_base_colour(Colour &result)
 {

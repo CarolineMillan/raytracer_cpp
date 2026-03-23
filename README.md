@@ -49,6 +49,12 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 - [ ] a cli
 - [ ] store photon maps between renders (the whole point of photon mapping)
 - [ ] add some features from Peter Shirley's ray tracing in one weekend (BVH, camera model, antialiasing, perhaps noise and procedural generation)
+    - [X] antialiasing
+    - [X] gamma correction
+    - [X] more material subclasses
+    - [ ] BVH
+    - [ ] area lights
+     - [ ] perlin noise (maybe look at procedural generation? this is more long term)
 - [X] delete ```BRDF_s```, which should be used as the specular BRDF for the caustic photon map. I used the diffuse BRDF here instead, as an approximation/simplification. Perhaps add in specular BRDF in future.
 - [X] add in other material subclasses
 - [ ] sort ```use namespace std``` and ```pragma once``` statements
@@ -66,6 +72,8 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 
 - whitted ray tracer part uses fresnel equations, but the photon mapping uses russian roulette to decide on reflection vs transmission. fresnel equations are physically correct and russian roulette uses randomness and is considered simpler. Maybe change this to make both parts of the ray tracer consistant with each other.
 - Phong Illumination model is the ambient + diffuse + specular equation that you use to calculate the colour. Phong Shading (or normal interpolation) is the inerpolation you do using barycentric coordinates on triangles to smooth the polymesh. Two different concepts named after the same guy.
+- glass currently reflected light back at the light source (currently a point light, a mathematical point that isn't really a visible light source), so there's a caustic pattern that is physically correct but looks unnatural because it is usually reflected back onto an area light source and therefore obscured. The fix is to add emmisive materials/area lights, which is on the to do list.
+- global photon map currently does not bounce, so there is no colour bleeding. Adding in diffuse reflection is on the to do list. the ```break;``` in ```photon_trace()``` stops the photon from being reflected any further. you need to fix ```gather_diffuse_reflection()``` and ```g_russian_roulette``` to get colour bleeding working.
 
 
 
@@ -76,3 +84,5 @@ materials stuff:
 - delete reflective and transparent on Material
 - created Glass and Metal child classes of Material
 - made hard coded importance sampling a circle rather than a square -- still need to do it properly
+- added a tint to glass and scaled for it whenever refraction takes place
+- made a better constructor for Phong
