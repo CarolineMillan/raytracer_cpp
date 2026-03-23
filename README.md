@@ -13,6 +13,12 @@ It outputs a scene to a PPM image, which can be converted to a viewable PNG via 
 - photon mapping (global and caustic) using kd-trees and k-NN searches
 - multi object scenes
 
+## Example Images
+
+![cornell sphere](readme_renders/cornell_sphere.png)
+
+![cornell teapot](readme_renders/cornell_teapot.png)
+
 ## Development notes
 
 I originally wrote this in 2019 as coursework.
@@ -37,7 +43,6 @@ Changes I made:
 build using ```make config=debug```
 run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app```
 
-## Example Images
 
 ## Future Plans:
 
@@ -58,6 +63,7 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 - [X] delete ```BRDF_s```, which should be used as the specular BRDF for the caustic photon map. I used the diffuse BRDF here instead, as an approximation/simplification. Perhaps add in specular BRDF in future.
 - [X] add in other material subclasses
 - [ ] sort ```use namespace std``` and ```pragma once``` statements
+- [ ] colour bleeding by adding in multiple bounces in global photon map
 
 ## Acknowledgements
 

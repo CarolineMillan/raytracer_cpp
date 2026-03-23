@@ -75,35 +75,6 @@ void Scene::cornell_box() {
     Colour white_s = Colour(0.1f, 0.1f, 0.1f, 1.0f);
     white = Phong(white_a, white_d, white_s, power);
 
-
-    /*
-    // white wall
-mat_wall2.ambient = Colour(0.1f, 0.1f, 0.1f, 1.0f);
-mat_wall2.diffuse = Colour(0.9f, 0.9f, 0.9f, 1.0f);
-mat_wall2.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
-mat_wall2.power = 20.0f;
-    mat_wall2.power = 20.0f;
-
-    mat_wall3 = mat_wall2;
-    mat_wall4 = mat_wall2;
-    mat_wall7 = mat_wall2;
-
-	// rgb(198, 242, 247)
-    // left wall - red
-    mat_wall5.ambient = Colour(0.05f, 0.0f, 0.0f, 1.0f);
-    mat_wall5.diffuse = Colour(0.7f, 0.0f, 0.0f, 1.0f);
-    mat_wall5.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
-    mat_wall5.power = 20.0f;
-
-	// rgb(255, 176, 249)
-    //// right wall - green
-    mat_wall6.ambient = Colour(0.0f, 0.05f, 0.0f, 1.0f);
-    mat_wall6.diffuse = Colour(0.0f, 0.7f, 0.0f, 1.0f);
-    mat_wall6.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
-    mat_wall6.power = 20.0f;
-
-	// rgb(180, 169, 245)
-*/
     Vertex v = Vertex(0.0f, -2.0f, 7.0f);
     Sphere *sphere = new Sphere(v, 2.0f);
 
@@ -128,7 +99,6 @@ mat_wall2.power = 20.0f;
 
 	string w4_path = resourceDir + "/wall4.ply";
 	PolyMesh *w4 = new PolyMesh((char *)w4_path.c_str());
-
 	
 	fl->material = &white;
 	ce->material = &white;
@@ -197,7 +167,34 @@ void Scene::teapot_box() {
 
     pm->smooth_shading = true;
 	//creates Phong surface illumination model for polymesh
+    
+    // set red wall
+    Colour red_a = Colour(0.07f, 0.01f, 0.01f, 1.0f);
+    Colour red_d = Colour(0.65f, 0.05f, 0.05f, 1.0f);
+    Colour red_s = Colour(0.1f, 0.1f, 0.1f, 1.0f);
+    float power = 10.0f;
+    red = Phong(red_a, red_d, red_s, power);
 
+    // set green wall
+    Colour green_a = Colour(0.01f, 0.07f, 0.01f, 1.0f);
+    Colour green_d = Colour(0.12f, 0.45f, 0.12f, 1.0f);
+    Colour green_s = Colour(0.1f, 0.1f, 0.1f, 1.0f);
+    green = Phong(green_a, green_d, green_s, power);
+
+    // set white wall
+
+    Colour white_a = Colour(0.08f, 0.07f, 0.05f, 1.0f);
+    Colour white_d = Colour(0.76f, 0.70f, 0.50f, 1.0f);
+    Colour white_s = Colour(0.1f, 0.1f, 0.1f, 1.0f);
+    white = Phong(white_a, white_d, white_s, power);
+
+    // set ceramic
+    Colour ceramic_a = Colour(0.05f, 0.05f, 0.05f, 1.0f);
+    Colour ceramic_d = Colour(0.3f, 0.25f, 0.2f, 1.0f); // warm dark brown
+    Colour ceramic_s = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+    float ceramic_power = 80.0f;
+    ceramic = Phong(ceramic_a, ceramic_d, ceramic_s, ceramic_power);
+/*
 	float scaling = 1.0/M_PI;
 
     mat_pm.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
@@ -234,8 +231,8 @@ void Scene::teapot_box() {
 	mat_wall7.diffuse = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
 	mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
 	mat_wall7.power = 20.0f;
-
-    pm->material = &mat_pm;
+*/
+    pm->material = &ceramic;
 
     Vertex v = Vertex(1.0f, 1.0f, 4.4f);
     Sphere *sphere = new Sphere(v, 0.5f);
@@ -267,12 +264,12 @@ void Scene::teapot_box() {
 	PolyMesh *w4 = new PolyMesh((char *)w4_path.c_str());
 
 	
-	fl->material = &mat_wall2;
-	ce->material = &mat_wall3;
-	w1->material = &mat_wall4;
-	w2->material = &mat_wall5;
-	w3->material = &mat_wall6;
-	w4->material = &mat_wall7;
+	fl->material = &white;
+	ce->material = &white;
+	w1->material = &white;
+	w2->material = &green;
+	w3->material = &red;
+	w4->material = &white;
 
 	sphere->next = std::unique_ptr<Object>(sphere2);
 	sphere2->next = std::unique_ptr<Object>(fl);
@@ -283,7 +280,27 @@ void Scene::teapot_box() {
 	w3->next = std::unique_ptr<Object>(w4);
 	w4->next = std::unique_ptr<Object>(nullptr);
 
+	//creates a light source
+	Vertex v1 = Vertex(0.0, 4.5, 7.0); //Vertex(-1.0, 1.0, -1.0);
+	//Colour c = Colour(0.5f, 0.5f, 0.5f, 1.0f);
+    Colour c = Colour(1.0f, 0.95f, 0.8f, 1.0f);
+	Vector d = Vector(0.0f, -1.0f, 0.0f);
 
+	PointLight *pl = new PointLight(v1, c, d);
+
+    // these two lights are AI generated
+    // fill light - from the left to lift shadows on the right side
+    Vertex fillLightPos = Vertex(-4.0f, 0.0f, 4.0f);
+    Colour fillIntensity = Colour(0.5f, 0.47f, 0.4f, 1.0f); // dimmer than main
+    Vector fillDir = Vector(1.0f, 0.0f, 0.0f);
+    PointLight *pl_fill = new PointLight(fillLightPos, fillIntensity, fillDir);
+
+    // rim light - from behind to separate objects from background
+    Vertex rimLightPos = Vertex(0.0f, 2.0f, 9.0f);
+    Colour rimIntensity = Colour(0.25f, 0.22f, 0.2f, 1.0f); // dimmest
+    Vector rimDir = Vector(0.0f, 0.0f, -1.0f);
+    PointLight *pl_rim = new PointLight(rimLightPos, rimIntensity, rimDir);
+/*
 	//creates a light source
 	Vertex v1 = Vertex(0.0, 4.5, 0.0); //Vertex(-1.0, 1.0, -1.0);
 	Colour c = Colour(0.5f, 0.5f, 0.5f, 1.0f);
@@ -303,7 +320,7 @@ void Scene::teapot_box() {
     Colour rimIntensity = Colour(0.2f, 0.2f, 0.2f, 1.0f); // dimmest
     Vector rimDir = Vector(0.0f, 0.0f, -1.0f);
     PointLight *pl_rim = new PointLight(rimLightPos, rimIntensity, rimDir);
-
+*/
 	// define object_list and light_list
 	//object_list = pm;
 	//object_list->next = sphere;

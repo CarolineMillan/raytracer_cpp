@@ -40,6 +40,7 @@ public:
     Phong white;
     Phong green;
     Phong red;
+    Phong ceramic;
 
     // old materials
 	Phong  mat_sphere;
