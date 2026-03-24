@@ -32,7 +32,7 @@ Changes I made:
     - moved code into subdirectories
     - used a project template to strucure the project
 - added smart pointers to avoid memory leaks
-- removed gather_diffuse_reflection (this sped up the photon mapping and made it about 4x faster) (there was something else you did that drastically increased the speed -- look back and check what it was)
+- removed gather_diffuse_reflection (this sped up the photon mapping and made it about 4x faster) (there was something else you did that drastically increased the speed -- look back and check what it was. UPDATE: it was adding ```break;``` to ```photon_trace()```, this stopped the global photons bouncing. this was time-consuming but it is the bit of the algorithm that does colour bleeding, so come to it at some point.)
 - added in gamma correction (uesd sqrt as an approximation for the actual formula)
 - added in antialiasing
 - fixed Phong normal interpolation (most of it was there, it was just adding the calculations into the final normal calculation) to make polymeshes smooth. I made this an optional thing via a boolean on PolyMesh. [scratchapixel](https://scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection.html) was useful for finding the fix here. 
@@ -40,6 +40,7 @@ Changes I made:
 ## Installation and Running the Path Tracer
 
 (currently just instructions for myself)
+
 build using ```make config=debug```
 run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app```
 
@@ -62,7 +63,7 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
      - [ ] perlin noise (maybe look at procedural generation? this is more long term)
 - [X] delete ```BRDF_s```, which should be used as the specular BRDF for the caustic photon map. I used the diffuse BRDF here instead, as an approximation/simplification. Perhaps add in specular BRDF in future.
 - [X] add in other material subclasses
-- [ ] sort ```use namespace std``` and ```pragma once``` statements
+- [ ] sort ```use namespace std``` and ```pragma once```  and ```#ifndef```statements
 - [ ] colour bleeding by adding in multiple bounces in global photon map
 
 ## Acknowledgements

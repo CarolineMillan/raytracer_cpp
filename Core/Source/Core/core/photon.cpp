@@ -42,7 +42,6 @@ Photon::Photon()
 
 	w = 0;
 
-	BRDF_s = Colour();
 	BRDF_d = Colour();
 
 }

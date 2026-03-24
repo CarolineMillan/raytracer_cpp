@@ -27,7 +27,7 @@ public:
 	float w; //for the weight for russian roulette
 	float BRDF;
 
-	Colour BRDF_s, BRDF_d;
+	Colour BRDF_d;
 
 	bool shadow;
 	bool reflected;

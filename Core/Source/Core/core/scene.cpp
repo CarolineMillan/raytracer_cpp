@@ -571,8 +571,7 @@ Colour Scene::gather_diffuse(const Hit hit, const vector<Photon*> globalNeighbou
 	return diffuse;
 }
 
-/// TODO shorten this method
-/// UPDATE you're not using this at all, it was taking too long and having no visible effect. see if it's actually in Jensen's paper
+/// NOTE: this method isn't currently used but I'm keeping the code here because I plan to come back to it and get it working. This is the bit that's used for multiple bounces of global photons, which creates the colour bleeding effect.
 Colour Scene::gather_diffuse_reflection(Ray ray, Hit best_hit, vector<Photon*> globalNeighbours) {
 	// get rays -- TODO look into emplace_back() instead
 	vector<Ray> current_rays;
