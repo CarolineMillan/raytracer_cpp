@@ -34,18 +34,6 @@ Scene::Scene()
     globalTree    = nullptr;
 }
 
-Scene::~Scene() {
-
-    // Delete your KD-trees:
-    delete causticTree;   // safe if nullptr
-    delete globalTree;    // safe if nullptr
-
-    // (Optional) clear vectors if you still use them:
-    causticPhotons.clear();
-    globalPhotons.clear();
-}
-
-
 void Scene::cornell_box() {
 
     string resourceDir = RESOURCE_DIR;
@@ -148,8 +136,7 @@ void Scene::cornell_box() {
     pl_rim->next = nullptr;
 }
 
-// TODO shorten the teapot_box() and test() method
-/// A NICE SCENE -- TEAPOT AND SPHERE INSIDE AN OPEN BOX
+/// A NICE SCENE -- TEAPOT AND SPHERE INSIDE A BOX
 void Scene::teapot_box() {
 
 
@@ -300,27 +287,7 @@ void Scene::teapot_box() {
     Colour rimIntensity = Colour(0.25f, 0.22f, 0.2f, 1.0f); // dimmest
     Vector rimDir = Vector(0.0f, 0.0f, -1.0f);
     PointLight *pl_rim = new PointLight(rimLightPos, rimIntensity, rimDir);
-/*
-	//creates a light source
-	Vertex v1 = Vertex(0.0, 4.5, 0.0); //Vertex(-1.0, 1.0, -1.0);
-	Colour c = Colour(0.5f, 0.5f, 0.5f, 1.0f);
-	Vector d = Vector(0.0f, -1.0f, 0.0f);
 
-	PointLight *pl = new PointLight(v1, c, d);
-
-    // these two lights are AI generated
-    // fill light - from the left to lift shadows on the right side
-    Vertex fillLightPos = Vertex(-4.0f, 0.0f, 4.0f);
-    Colour fillIntensity = Colour(0.4f, 0.4f, 0.4f, 1.0f); // dimmer than main
-    Vector fillDir = Vector(1.0f, 0.0f, 0.0f);
-    PointLight *pl_fill = new PointLight(fillLightPos, fillIntensity, fillDir);
-
-    // rim light - from behind to separate objects from background
-    Vertex rimLightPos = Vertex(0.0f, 2.0f, 9.0f);
-    Colour rimIntensity = Colour(0.2f, 0.2f, 0.2f, 1.0f); // dimmest
-    Vector rimDir = Vector(0.0f, 0.0f, -1.0f);
-    PointLight *pl_rim = new PointLight(rimLightPos, rimIntensity, rimDir);
-*/
 	// define object_list and light_list
 	//object_list = pm;
 	//object_list->next = sphere;
@@ -332,98 +299,6 @@ void Scene::teapot_box() {
 	pl_rim->next = nullptr;
 }
 
-/*
-void Scene::test() {
-	
-	string resourceDir = RESOURCE_DIR;
-	/// A SIMPLE SCENE -- SPHERE, BACK WALL, ONE SIDE WALL
-	// rgb(211, 141, 255)
-	// rgb(244, 250, 252)
-	//Phong bp1; 
-	mat_sphere = Phong();
-	mat_sphere.ambient = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
-	mat_sphere.diffuse = Colour(244.0/255.0, 250.0/255.0, 252.0/255.0, 255.0/255.0);
-	mat_sphere.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_sphere.power = 40.0f;
-	mat_sphere.transparent = true;
-    mat_sphere.reflective = true;
-	mat_sphere.eta = 1.5; //glass refractive index
-	mat_sphere.kr = 0.4;
-	//mat_sphere.BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
-	mat_sphere.BRDF_d = Colour(0.0, 0.0, 0.0, 0.0);
-
-	//p1 = bp1;
-
-	// rgb(199, 247, 198)
-	//Phong bp4;
-	mat_wall1.ambient = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
-	mat_wall1.diffuse = Colour(199.0/255.0, 247.0/255.0, 198.0/255.0, 255.0/255.0);
-	mat_wall1.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall1.power = 40.0f;
-
-	//p2 = bp4;
-
-	// rgb(255, 176, 249)
-	//Phong bp6;
-	mat_wall3.ambient = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
-	mat_wall3.diffuse = Colour(255.0/255.0, 176.0/255.0, 249.0/255.0, 255.0/255.0);
-	mat_wall3.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall3.power = 40.0f;
-
-	//p3 = bp6;
-
-	Vertex v = Vertex(-1.0f, -1.0f, 5.0f);
-	//v.x = -1.0f;
-	//v.y = -1.0f;
-	//v.z = 5.0f;
-    Sphere *sphere = new Sphere(v, 1.0f);
-
-    sphere->material = &mat_sphere;
-	
-    sphere->material->transparent = true;
-    sphere->material->reflective = true;
-	sphere->material->eta = 1.5; //glass refractive index
-	sphere->material->kr = 0.4;
-	sphere->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
-	sphere->material->BRDF_d = Colour(0.0, 0.0, 0.0, 0.0);
-
-
-	string w1_path = resourceDir + "/wall1.ply";
-	PolyMesh *w1 = new PolyMesh((char *)w1_path.c_str());
-
-	string w3_path = resourceDir + "/wall3.ply";
-	PolyMesh *w3 = new PolyMesh((char *)w3_path.c_str());
-
-	w1->material = &mat_wall1;
-    w1->material->transparent = true;
-    w1->material->reflective = true;
-	//w1->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
-	w1->material->BRDF_d = Colour(1.0, 1.0, 1.0, 1.0);
-	w1->material->eta = 1.5; //glass refractive index
-	w1->material->kr = 0.4;
-
-	
-	w3->material = &mat_wall3;
-    w3->material->transparent = false;
-    w3->material->reflective = false;
-	//w3->material->BRDF_s = Colour(0.0, 0.0, 0.0, 0.0);
-	w3->material->BRDF_d = Colour(1.0, 1.0, 1.0, 1.0);
-
-	object_list = std::unique_ptr<Object>(sphere);
-	object_list->next = std::unique_ptr<Object>(w1);
-	w1->next = std::unique_ptr<Object>(w3);
-	w3->next = nullptr;
-
-	//creates a light source
-    //DirectionalLight *dl = new DirectionalLight(Vector(0.01f, 0.01f, 1.0f),Colour(1.0f, 1.0f, 1.0f, 1.0f)); 
-
-	Vertex pt = Vertex(-1.0, -1.0, -1.0);
-	Colour c = Colour(1.0, 1.0, 1.0, 1.0);
-	Vector dir = Vector(0.1, 0.1, 0.1);
-	light_list = std::make_unique<PointLight>(pt, c, dir);
-	light_list->next = nullptr; 
-}
-*/
 Colour Scene::background_colour(float depth) {
 	//Colour colour = Colour(163.0/255.0, 249.0/255.0, 255.0/255.0, 1.0f);
 	// I like rgb(163, 249, 255), but it's so bright it drowns out all the other colours in the scene. fix?
@@ -981,14 +856,14 @@ photon.direction = temp;
 	std::cout << "globalPhotons.size: " << globalPhotons.size() << std::endl;
 
 	if (!causticPhotons.empty()) {
-		delete causticTree;                        // in case it existed
-		causticTree = new KDTree(causticPhotons);  // build once
+		//delete causticTree;                        // in case it existed
+		causticTree = std::make_unique<KDTree>(causticPhotons);  // build once
 		std::cout << "caustic tree created..." << std::endl;
 	}
 
 	if (!globalPhotons.empty()) {
-		delete globalTree;                        // in case it existed
-		globalTree = new KDTree(globalPhotons);  // build once
+		//delete globalTree;                        // in case it existed
+		globalTree = std::make_unique<KDTree>(globalPhotons);  // build once
 		std::cout << "global tree created..." << std::endl;
 	}
 }

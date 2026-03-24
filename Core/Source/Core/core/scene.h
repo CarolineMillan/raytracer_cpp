@@ -29,10 +29,10 @@ public:
     std::unique_ptr<PointLight> light_list;
 
 	vector<Photon> causticPhotons;
-	KDTree* causticTree;
+    std::unique_ptr<KDTree> causticTree;
 
 	vector<Photon> globalPhotons;
-	KDTree* globalTree;
+    std::unique_ptr<KDTree> globalTree;
 
 
 	Glass glass;
@@ -42,24 +42,9 @@ public:
     Phong red;
     Phong ceramic;
 
-    // old materials
-	Phong  mat_sphere;
-  	Phong  mat_wall1;
-  	Phong  mat_wall3;	
-	Phong mat_pm;
-	Phong mat_wall2;
-	Phong mat_wall4;
-	Phong mat_wall5;
-	Phong mat_wall6;
-	Phong mat_wall7;
-
 	Scene();
 	
-	~Scene();
-
 	void teapot_box();
-
-	void test();
 
 	void cornell_box();
 
