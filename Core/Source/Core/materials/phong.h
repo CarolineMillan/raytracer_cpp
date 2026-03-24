@@ -25,7 +25,7 @@ public:
 	float  power;
 
     Phong();
-    Phong(Colour diffuse, Colour ambient, Colour specular, float power);
+    Phong(Colour ambient, Colour diffuse, Colour specular, float power);
 
 	void compute_base_colour(Colour &result);
 
