@@ -40,6 +40,12 @@ public:
 		w = 1.0f;
 	}
 
+    void scale(float a) {
+        x *= a;
+        y *= a;
+        z *= a;
+    }
+
 	void sub(Vertex &other)
 	{
 	  x -= other.x;
@@ -47,11 +53,63 @@ public:
 	  z -= other.z;
 	}
 
+    void add(Vertex &other) {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+    }
+
 	float distance(Vertex &other) const{
 		float a = other.x - x;
 		float b = other.y - y;
 		float c = other.z - z;
 		return sqrt(a*a + b*b + c*c);
+	}
+
+	Vertex& operator=(Vertex other)
+	{
+		if (this !=&other) {
+			x = other.x;
+	  		y = other.y;
+	  		z = other.z;
+		}
+		return *this;
+	}
+
+
+    friend Vertex operator+(const Vertex &a, const Vertex &b)
+	{
+	  Vertex t;
+	  t.x = a.x + b.x;
+	  t.y = a.y + b.y;
+	  t.z = a.z + b.z;
+	  return t;
+	}
+	friend Vertex operator-(const Vertex &a, const Vertex &b)
+	{
+	  Vertex t;
+	  t.x = a.x - b.x;
+	  t.y = a.y - b.y;
+	  t.z = a.z - b.z;
+	  return t;
+	}
+
+	friend Vertex operator*(const Vertex &a, const Vertex &b)
+	{
+	  Vertex t;
+	  t.x = a.x * b.x;
+	  t.y = a.y * b.y;
+	  t.z = a.z * b.z;
+	  return t;
+	}
+
+	friend Vertex operator*(const float a, const Vertex &b)
+	{
+	  Vertex t;
+	  t.x = a * b.x;
+	  t.y = a * b.y;
+	  t.z = a * b.z;
+	  return t;
 	}
 
 };

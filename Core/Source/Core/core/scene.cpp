@@ -43,6 +43,8 @@ void Scene::cornell_box() {
     //glass = Glass(1.5f, 0.9f, Colour(0.0f, 0.4f, 0.1f, 1.0f));
     //metal = Metal();
 
+    // TODO: these should really be set in the constructor for scene, considering they are fields
+    // they needed to be fields so that they weren't just local variables. Is there another way round this? Have you fixed this problem by adding smart pointers? so now the materials belong to the smart pointer objects, will the materials exist for as long as the smart pointer does? I'll need to check this, because thematerial itself is not a smart pointer
     // set red wall
     Colour red_a = Colour(0.07f, 0.01f, 0.01f, 1.0f);
     Colour red_d = Colour(0.65f, 0.05f, 0.05f, 1.0f);
@@ -66,10 +68,12 @@ void Scene::cornell_box() {
     Vertex v = Vertex(0.0f, -2.0f, 7.0f);
     Sphere *sphere = new Sphere(v, 2.0f);
 
+    // TODO: material should be set in the constructor for an object really, you shouldn't be able to change the material after an object has been created
     sphere->material = &glass;
 
 	/// put the scene in a box 
 
+    // TODO: check why these are pointers. Do you need 'new'? Can they be smart poitners? This is the way my lecturer did it, but go back and understand why
 	string fl_path = resourceDir + "/square.ply";
 	PolyMesh *fl = new PolyMesh((char *)fl_path.c_str());
 
@@ -181,44 +185,7 @@ void Scene::teapot_box() {
     Colour ceramic_s = Colour(1.0f, 1.0f, 1.0f, 1.0f);
     float ceramic_power = 80.0f;
     ceramic = Phong(ceramic_a, ceramic_d, ceramic_s, ceramic_power);
-/*
-	float scaling = 1.0/M_PI;
 
-    mat_pm.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
-    mat_pm.diffuse = Colour(0.3f, 0.25f, 0.2f, 1.0f); // warm dark brown
-    mat_pm.specular = Colour(1.0f, 1.0f, 1.0f, 1.0f);
-    //mat_pm.ambient = Colour(0.1f, 0.09f, 0.08f, 1.0f);
-    //mat_pm.diffuse = Colour(0.85f, 0.82f, 0.75f, 1.0f); // light ceramic
-    //mat_pm.specular = Colour(1.0f, 1.0f, 1.0f, 1.0f);
-    mat_pm.power = 80.0f;
-
-    // floor - light grey
-    mat_wall2.ambient = Colour(0.05f, 0.05f, 0.05f, 1.0f);
-    mat_wall2.diffuse = Colour(0.7f, 0.7f, 0.7f, 1.0f);
-    mat_wall2.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
-    mat_wall2.power = 20.0f;
-
-    mat_wall3 = mat_wall2;
-    mat_wall4 = mat_wall2;
-    mat_wall7 = mat_wall2;
-
-    // left wall - red
-    mat_wall5.ambient = Colour(0.05f, 0.0f, 0.0f, 1.0f);
-    mat_wall5.diffuse = Colour(0.7f, 0.0f, 0.0f, 1.0f);
-    mat_wall5.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
-    mat_wall5.power = 20.0f;
-    
-    // right wall - green
-    mat_wall6.ambient = Colour(0.0f, 0.05f, 0.0f, 1.0f);
-    mat_wall6.diffuse = Colour(0.0f, 0.7f, 0.0f, 1.0f);
-    mat_wall6.specular = Colour(0.3f, 0.3f, 0.3f, 1.0f);
-    mat_wall6.power = 20.0f;
-
-	mat_wall7.ambient = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
-	mat_wall7.diffuse = Colour(180.0/255.0, 169.0/255.0, 245.0/255.0, 255.0/255.0);
-	mat_wall7.specular = Colour(255.0/255.0, 255.0/255.0, 255.0/255.0, 255.0/255.0);
-	mat_wall7.power = 20.0f;
-*/
     pm->material = &ceramic;
 
     Vertex v = Vertex(1.0f, 1.0f, 4.4f);
@@ -338,18 +305,12 @@ void Scene::point_light_intersection(Ray ray, PointLight*& pl, float &depth, boo
 
 	while(light != 0) {
 
-		Vector toLight;
-		toLight.x = light->point.x - ray.position.x;
-		toLight.y = light->point.y - ray.position.y;
-		toLight.z = light->point.z - ray.position.z;
+		Vector toLight = light->point - ray.position;
 		float t = toLight.dot(ray.direction);
 
 		if (t > 0) {
 
-			Vector closest;
-			closest.x = ray.at(t).x - light->point.x;
-			closest.y = ray.at(t).y - light->point.y;
-			closest.z = ray.at(t).z - light->point.z;
+			Vector closest = ray.at(t) - light->point;
 
 			// 1e-4f is squared because we square the thing we're comparing it to
 			if (closest.len_sqr() < (1e-4f)*(1e-4f) && t < depth) {
@@ -368,14 +329,10 @@ void Scene::point_light_intersection(Ray ray, PointLight*& pl, float &depth, boo
 
 
 Ray Scene::get_shadow_ray(Vector ldir, Hit &best_hit) {
-	Ray shadow_ray;
-	shadow_ray.direction.x = -ldir.x;
-	shadow_ray.direction.y = -ldir.y;
-	shadow_ray.direction.z = -ldir.z;
+    Vector dir = -1.0f*ldir;
+    Vertex pos = (0.0001f*dir).add_vertex(best_hit.position);
 
-	shadow_ray.position.x = best_hit.position.x + (0.0001f * shadow_ray.direction.x);
-	shadow_ray.position.y = best_hit.position.y + (0.0001f * shadow_ray.direction.y);
-	shadow_ray.position.z = best_hit.position.z + (0.0001f * shadow_ray.direction.z);
+    Ray shadow_ray = Ray(pos, dir);
 	return shadow_ray;
 }
 
@@ -398,9 +355,7 @@ void Scene::refract_ray(const Ray &incoming, Hit &hit, Ray &refracted, bool &tot
 
 		refracted.direction = (1/eta)*incoming.direction - (cos_theta_t - (1/eta)*cos_theta_i)*hit.normal;
 
-		refracted.position.x = hit.position.x + 0.001*refracted.direction.x;
-		refracted.position.y = hit.position.y + 0.001*refracted.direction.y;
-		refracted.position.z = hit.position.z + 0.001*refracted.direction.z;
+        refracted.position = (0.001*refracted.direction).add_vertex(hit.position);
 
 		//fresnel equations
 		float rpar = (eta*cos_theta_i - cos_theta_t)/(eta*cos_theta_i + cos_theta_t);
@@ -423,9 +378,7 @@ void Scene::reflect_ray(const Ray &incoming, Hit &hit, Ray &reflected) {
 	//calculate reflected eye ray
 	reflected.direction = dir - 2.0*(n.dot(dir))*n;
 
-	reflected.position.x = hit.position.x + 0.001*reflected.direction.x;
-	reflected.position.y = hit.position.y + 0.001*reflected.direction.y;
-	reflected.position.z = hit.position.z + 0.001*reflected.direction.z;
+    reflected.position = (0.001*reflected.direction).add_vertex(hit.position);
 }
 
 
@@ -441,14 +394,14 @@ Colour Scene::get_shadow_colour(Ray ray, Hit best_hit, int ref_limit) {
 	// this gives us direct lighting L_d
 	while (light != (Light *)0) {
 		// check for a hit between best_hit and light source
-		Vector viewer;
+		//viewing ray position
+        Vertex pos = best_hit.position;
+        pos.scale(-1.0f);
+		Vector viewer = Vector(pos);
+		viewer.normalise();
+
 		Vector ldir;
 
-		//viewing ray position
-		viewer.x = -best_hit.position.x; 
-		viewer.y = -best_hit.position.y;
-		viewer.z = -best_hit.position.z;
-		viewer.normalise();
 		//is best_hit hit by the light?
 		bool lit;
 		lit = light->get_direction(best_hit.position, ldir); 
@@ -821,7 +774,7 @@ float dx, dz;
 do {
     dx = ((rand() % 20000) - 10000)/100000.0f;
     dz = ((rand() % 20000) - 10000)/100000.0f;
-} while (dx*dx + dz*dz > 0.01f);  // reject outside circle of radius 0.1
+} while (dx*dx + dz*dz > 0.1f);  // reject outside circle of radius 0.1
 
 Vector temp = Vector(dx, -1.0f, dz);
 temp.normalise();

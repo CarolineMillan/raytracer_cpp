@@ -9,6 +9,7 @@
 #define _VECTOR_H_
 
 #include <math.h>
+#include "vertex.h"
 
 class Vector {
 public:
@@ -29,6 +30,12 @@ public:
 		y = 0.0f;
 		z = 0.0f;
 	}
+
+    Vector(Vertex v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+    };
 
 	void normalise()
 	{
@@ -149,8 +156,15 @@ public:
 	  t.z = a * b.z;
 	  return t;
 	}
-
 	
+    Vertex add_vertex(Vertex v) {
+        // adds a vector and a vertex together to return a vertex
+        Vertex t;
+        t.x = x + v.x;
+        t.y = y + v.y;
+        t.z = z + v.z;
+        return t;
+    }
 };
 
 #endif

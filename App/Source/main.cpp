@@ -29,6 +29,7 @@
 #include "Core/geometry/lights/point_light.h"
 #include "Core/materials/phong.h"
 #include "Core/geometry/sphere.h"
+#include "Core/utils/vertex.h"
 
 int main() {
 
@@ -40,24 +41,21 @@ int main() {
 	cout << ctime(&timestamp);
 
     // create a framebuffer
-    int width = 100; 
-	int height = 100; // 1280
+    int width = 512; 
+	int height = 512; // 1280
     FrameBuffer fb = FrameBuffer(width,height);
 
 	srand (time(NULL)); //initialises random seed
 
 	//create a scene 
 	Scene scene = Scene();
-	//scene.test();
-	scene.teapot_box();
-    //scene.cornell_box();
+	//scene.teapot_box();
+    scene.cornell_box();
 	scene.create_photon_maps();
 
     // create a ray starting at (0,0,0) to use for the camera
 	Ray ray;
-	ray.position.x = 0.0001f;
-	ray.position.y = 0.0f;
-	ray.position.z = 0.0f;
+    ray.position = Vertex(0.0001f, 0.0f, 0.0f);
 
 	std::cout << "(width, height) = (" << width << ", " << height << ")" << std::endl;
     std::filesystem::create_directories("images");
@@ -74,10 +72,7 @@ int main() {
                 // fire a ray into the scene, add a random offset
                 float fx = ((float)x + (rand() % 1000)/1000.0f)/(float)width;
                 float fy = ((float)y + (rand() % 1000)/1000.0f)/(float)height;
-                Vector direction;
-                ray.direction.x = (fx-0.5f);
-                ray.direction.y = (0.5f-fy);
-                ray.direction.z = 0.5f;
+                ray.direction = Vector((fx - 0.5f), (0.5f-fy), 0.5f);
                 ray.direction.normalise();
                 Colour colour;
                 depth = 0;

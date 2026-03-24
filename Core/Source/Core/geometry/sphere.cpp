@@ -17,15 +17,11 @@ Sphere::Sphere(Vertex c, float r)
 
 void Sphere::intersection(Ray ray, Hit &hit)
 {
-	Vector ro;
-
-	hit.flag = false;
-
 	// offset ray by sphere position
 	// equivalent to transforming ray into local sphere space
-	ro.x = ray.position.x - center.x;
-	ro.y = ray.position.y - center.y;
-	ro.z = ray.position.z - center.z;
+	Vector ro = ray.position - center;
+
+	hit.flag = false;
 
 	float a = (float)ray.direction.dot(ray.direction);
 	float b = (float)(2.0 * ray.direction.dot(ro));
@@ -49,12 +45,8 @@ void Sphere::intersection(Ray ray, Hit &hit)
 	//smallest root is positive.
 	if (t0 > 0.0) {
 		hit.t = t0;
-		hit.position.x = ray.position.x + t0 * ray.direction.x;
-		hit.position.y = ray.position.y + t0 * ray.direction.y;
-		hit.position.z = ray.position.z + t0 * ray.direction.z;
-		hit.normal.x = hit.position.x - center.x;
-		hit.normal.y = hit.position.y - center.y;
-		hit.normal.z = hit.position.z - center.z;
+        hit.position = ray.at(t0);
+        hit.normal = hit.position - center;
 		hit.normal.normalise();
         if(hit.normal.dot(ray.direction) > 0.0) {
             hit.normal.negate();
@@ -64,12 +56,8 @@ void Sphere::intersection(Ray ray, Hit &hit)
 	}
 	
 	hit.t = t1;
-	hit.position.x = ray.position.x + t1 * ray.direction.x;
-	hit.position.y = ray.position.y + t1 * ray.direction.y;
-	hit.position.z = ray.position.z + t1 * ray.direction.z;
-	hit.normal.x = hit.position.x - center.x;
-	hit.normal.y = hit.position.y - center.y;
-	hit.normal.z = hit.position.z - center.z;
+    hit.position = ray.at(t1);
+    hit.normal = hit.position - center;
 	hit.normal.normalise();
     if(hit.normal.dot(ray.direction) > 0.0) {
         hit.normal.negate();

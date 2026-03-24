@@ -23,17 +23,21 @@
 
 Photon::Photon()
 {
-	position.x = 0;
-	position.y = 0;
-	position.z = 0;
+    position = Vertex();
+    direction = Vector();
+    intensity = Colour();
 
-	direction.x = 0;
-	direction.y = 0;
-	direction.z = 0;
+	//position.x = 0;
+	//position.y = 0;
+	//position.z = 0;
 
-	intensity.r = 0;
-	intensity.g = 0;
-	intensity.b = 0;
+	//direction.x = 0;
+	//direction.y = 0;
+	//direction.z = 0;
+
+	//intensity.r = 0;
+	//intensity.g = 0;
+	//intensity.b = 0;
 
 	shadow = false;
 	reflected = false;

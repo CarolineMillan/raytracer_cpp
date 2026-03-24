@@ -184,27 +184,13 @@ PolyMesh::~PolyMesh() {
 // Moller-Trumbore
 bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vector &v1, const Vector &v2, float &t, float &u, float &v)
 {
-
-  //std::cout << "ray: " << ray << std::endl;
-  //printf("a");
-  Vector p;
-  Vector d;
-  Vector e1,e2,h,s,q;
-  float a,f; //,u,v;
-
-  p.x = ray.position.x;
-  p.y = ray.position.y;
-  p.z = ray.position.z;
-  d.x = ray.direction.x;
-  d.y = ray.direction.y;
-  d.z = ray.direction.z;
-
-  e1.x = v1.x - v0.x;
-  e1.y = v1.y - v0.y;
-  e1.z = v1.z - v0.z;
-  e2.x = v2.x - v0.x;
-  e2.y = v2.y - v0.y;
-  e2.z = v2.z - v0.z;
+  Vector p = Vector(ray.position);
+  Vector d = ray.direction;
+  Vector e1 = v1 - v0;
+    Vector e2 = v2 - v0;
+    Vector s = p - v0;
+    Vector h,q; // these will be the result of cross products
+  float a,f; // these will be the result of dot products
 
   d.cross(e2,h);
   a = e1.dot(h);
@@ -216,10 +202,6 @@ bool PolyMesh::rayTriangleIntersect(const Ray& ray, const Vector &v0, const Vect
   }
 
   f = 1/a;
-  s.x = p.x - v0.x;
-  s.y = p.y - v0.y;
-  s.z = p.z - v0.z;
-
   u = f * s.dot(h);
 
   s.cross(e1,q);
@@ -269,16 +251,11 @@ void PolyMesh::compute_vertex_normals(void)
 
 void PolyMesh::compute_face_normal(int which_triangle, Vector &normal)
 {
-  Vector v0v1, v0v2;
-  v0v1.x = vertex[triangle[which_triangle][1]].x - vertex[triangle[which_triangle][0]].x;
-  v0v1.y = vertex[triangle[which_triangle][1]].y - vertex[triangle[which_triangle][0]].y;
-  v0v1.z = vertex[triangle[which_triangle][1]].z - vertex[triangle[which_triangle][0]].z;
+  Vector v0v1 = vertex[triangle[which_triangle][1]] - vertex[triangle[which_triangle][0]];
 
   v0v1.normalise();
 
-  v0v2.x = vertex[triangle[which_triangle][2]].x - vertex[triangle[which_triangle][0]].x;
-  v0v2.y = vertex[triangle[which_triangle][2]].y - vertex[triangle[which_triangle][0]].y;
-  v0v2.z = vertex[triangle[which_triangle][2]].z - vertex[triangle[which_triangle][0]].z;
+  Vector v0v2 = vertex[triangle[which_triangle][2]] - vertex[triangle[which_triangle][0]];
 
   v0v2.normalise();
 
@@ -295,25 +272,11 @@ void PolyMesh::triangle_intersection(Ray ray, Hit &hit, int which_triangle)
   // ray is parallel to triangle so does not intersect
   if (fabs(ndotdir) < 0.000000001f) return;
 
-  Vector v0,v1,v2;
-  v0.x = vertex[triangle[which_triangle][0]].x;
-  v1.x = vertex[triangle[which_triangle][1]].x;
-  v2.x = vertex[triangle[which_triangle][2]].x;
+  Vector v0 = vertex[triangle[which_triangle][0]];
+  Vector v1 = vertex[triangle[which_triangle][1]];
+  Vector v2 = vertex[triangle[which_triangle][2]];
 
-  v0.y = vertex[triangle[which_triangle][0]].y;
-  v1.y = vertex[triangle[which_triangle][1]].y;
-  v2.y = vertex[triangle[which_triangle][2]].y;
-
-  v0.z = vertex[triangle[which_triangle][0]].z;
-  v1.z = vertex[triangle[which_triangle][1]].z;
-  v2.z = vertex[triangle[which_triangle][2]].z;
-
-
-  Vector o;
-
-  o.x = ray.position.x;
-  o.y = ray.position.y;
-  o.z = ray.position.z;
+  Vector o = ray.position;
   float t,u,v;
 
   hit.flag =  rayTriangleIntersect(ray, v0, v1, v2, t, u, v) ;
@@ -323,11 +286,7 @@ void PolyMesh::triangle_intersection(Ray ray, Hit &hit, int which_triangle)
   // intersection is behind start of ray
   if (t <= 0.0f) return;
 
-  Vertex p;
-
-  p.x = ray.position.x + t * ray.direction.x;
-  p.y = ray.position.y + t * ray.direction.y;
-  p.z = ray.position.z + t * ray.direction.z;
+  Vertex p = (t*ray.direction).add_vertex(ray.position);
 
   hit.t = t;
   hit.what = this;
