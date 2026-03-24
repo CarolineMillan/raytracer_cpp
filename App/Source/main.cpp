@@ -40,9 +40,9 @@ int main() {
 	cout << ctime(&timestamp);
 
     // create a framebuffer
-    int width = 512; 
-	int height = 512; // 1280
-    FrameBuffer *fb = new FrameBuffer(width,height);
+    int width = 100; 
+	int height = 100; // 1280
+    FrameBuffer fb = FrameBuffer(width,height);
 
 	srand (time(NULL)); //initialises random seed
 
@@ -93,8 +93,8 @@ int main() {
             total.scale(invert);
 
             // plot it in the framebuffer
-			fb->plotPixel(x, y, total.r, total.g, total.b);
-			fb->plotDepth(x,y, depth);
+			fb.plotPixel(x, y, total.r, total.g, total.b);
+			fb.plotDepth(x,y, depth);
 		}
 		if (y % (width/10) == 0) {
 			time(&timestamp);
@@ -102,10 +102,12 @@ int main() {
 		}
 		cerr << "Progress: " << y << "/" << height << "\n" << flush;
 	}
+    // used AI to get a timestamp in filename
     char filename[64];
     std::strftime(filename, sizeof(filename), "images/render_%Y%m%d_%H%M%S.ppm", localtime(&timestamp));
+    // end of AI
 	// write framebuffer to a ppm file
-	fb->writeRGBFile(filename);
+	fb.writeRGBFile(filename);
 
 	time(&timestamp);
 
