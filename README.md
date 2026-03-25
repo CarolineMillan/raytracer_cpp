@@ -51,7 +51,7 @@ run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app
 - [ ] proper importance sampling (right now I've just hard coded some photons to fire at specular objects, also for k-NN on globalTree)
 - [X] phong interpolation for meshes
 - [X] added in constructors and deconstructors
-- [ ] helper functions for vector and vertex
+- [X] helper functions for vector and vertex
 - [ ] a cli
 - [ ] store photon maps between renders (the whole point of photon mapping)
 - [ ] add some features from Peter Shirley's ray tracing in one weekend (BVH, camera model, antialiasing, perhaps noise and procedural generation)
@@ -93,3 +93,7 @@ materials stuff:
 - made hard coded importance sampling a circle rather than a square -- still need to do it properly
 - added a tint to glass and scaled for it whenever refraction takes place
 - made a better constructor for Phong
+
+
+cli:
+
