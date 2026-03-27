@@ -16,6 +16,7 @@ if [ ! -f "$PREMAKE_PATH" ]; then
     mkdir -p Vendor/Binaries/Premake/Linux
     curl -L https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz \
         | tar -xz -C Vendor/Binaries/Premake/Linux
+    chmod +x Vendor/Binaries/Premake/Linux/premake5
 fi
 
 Vendor/Binaries/Premake/Linux/premake5 --cc=clang --file=Build.lua gmake2
