@@ -1,15 +1,15 @@
-# Ray Tracing with Photon Mapping in C++
+# Ray Tracer with Photon Mapping
 
-This is a ray tracer written in C++ that I wrote as coursework for my Advanced Computer Graphics module at the University of Bath. I have since refactored the code into something more readable.
+This is a classic ray tracer with photon mapping written in C++.
 
-It outputs a scene to a PPM image, which can be converted to a viewable PNG via your terminal using ImageMagick or a website like [convertio](https://convertio.co/).
+It outputs a scene to a PPM image in the images folder, which can be converted to a viewable PNG via your terminal using ImageMagick or a website like [convertio](https://convertio.co/).
 
 ## Features
 
 - Whitted Ray Tracing
 - supports spheres and Polymesh objects
 - supports point lights, shadows, transparent and reflective materials
-- phong shading (illumination, not interpoltion (yet...))
+- phong shading
 - photon mapping (global and caustic) using kd-trees and k-NN searches
 - multi object scenes
 
