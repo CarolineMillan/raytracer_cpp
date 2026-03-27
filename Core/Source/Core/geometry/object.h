@@ -12,6 +12,7 @@
 #include "../core/ray.h"
 #include "hit.h"
 #include "../materials/material.h"
+#include <memory>
 
 class Object {
 public:
