@@ -5,8 +5,9 @@
  * Do what you like with this code as long as you retain this comment.
  */
 
-#include <stdlib.h>
-#include <float.h>
+#include <cstdlib>
+#include <cfloat>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 using namespace std;
