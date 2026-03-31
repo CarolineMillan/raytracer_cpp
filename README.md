@@ -1,17 +1,8 @@
 # Ray Tracer with Photon Mapping
 
-This is a classic ray tracer with photon mapping written in C++.
+A classic Whitted-style ray tracer with global illumination via photon mapping, written in C++.
 
 It outputs a scene to a PPM image in the images folder, which can be converted to a viewable PNG via your terminal using ImageMagick or a website like [convertio](https://convertio.co/).
-
-## Features
-
-- Whitted Ray Tracing
-- supports spheres and Polymesh objects
-- supports point lights, shadows, transparent and reflective materials
-- phong shading
-- photon mapping (global and caustic) using kd-trees and k-NN searches
-- multi object scenes
 
 ## Example Images
 
@@ -19,81 +10,93 @@ It outputs a scene to a PPM image in the images folder, which can be converted t
 
 ![cornell teapot](readme_renders/cornell_teapot.png)
 
-## Development notes
+## How it works
 
-I originally wrote this in 2019 as coursework.
 
-I have tidied it up (in 2025) before making it public here.
+## Features
 
-Changes I made:
-- restructured the project
-    - moved raytracer code from main.cpp to scene.cpp
-    - broke up the project into lots of smaller helper functions, rather than the handful of massive ones I had before
-    - moved code into subdirectories
-    - used a project template to strucure the project
-- added smart pointers to avoid memory leaks
-- removed gather_diffuse_reflection (this sped up the photon mapping and made it about 4x faster) (there was something else you did that drastically increased the speed -- look back and check what it was. UPDATE: it was adding ```break;``` to ```photon_trace()```, this stopped the global photons bouncing. this was time-consuming but it is the bit of the algorithm that does colour bleeding, so come to it at some point.)
-- added in gamma correction (uesd sqrt as an approximation for the actual formula)
-- added in antialiasing
-- fixed Phong normal interpolation (most of it was there, it was just adding the calculations into the final normal calculation) to make polymeshes smooth. I made this an optional thing via a boolean on PolyMesh. [scratchapixel](https://scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection.html) was useful for finding the fix here. 
+- Whitted Ray Tracing
+- Spheres and Polymesh objects
+- Point lights
+- Shadows
+- Transparent and reflective materials
+- Phong shading
+- Photon mapping (global and caustic) using kd-trees and k-NN searches
+- Multi-object scenes
+- Antialiasing
+- Gamma correction
 
 ## Installation and Running the Path Tracer
 
-(currently just instructions for myself)
+### Installation
+#### Mac
 
-build using ```make config=debug```
-run from the root of the project using ```./Binaries/macosx-x86_64/Debug/App/app```
+```
+git clone https://github.com/CarolineMillan/raytracer_cpp.git
+cd raytracer_cpp
+chmod +x Scripts/Setup-Mac.sh
+./Scripts/Setup-Mac.sh
+```
+
+You will be prompted for your password to install raytrace to ```/usr/local/bin```.
+
+#### Linux
+
+```
+git clone https://github.com/CarolineMillan/raytracer_cpp.git
+cd raytracer_cpp
+chmod +x Scripts/Setup-Linux.sh
+./Scripts/Setup-Linux.sh
+```
+
+You will be prompted for your password to install raytrace to ```/usr/local/bin```.
+
+#### Windows
+
+```
+git clone https://github.com/CarolineMillan/raytracer_cpp.git
+cd raytracer_cpp
+Scripts\Setup-Windows.bat
+```
 
 
-## Future Plans:
+Requires `make` to be available first — install via [Git for Windows](https://gitforwindows.org/), [MSYS2](https://www.msys2.org/), or Chocolatey (`choco install make`). After running the script, `grape.exe` will be copied to `C:\Windows\System32`.
 
-- [X] smart pointers
-- [ ] proper importance sampling (right now I've just hard coded some photons to fire at specular objects, also for k-NN on globalTree)
-- [X] phong interpolation for meshes
-- [X] added in constructors and deconstructors
-- [X] helper functions for vector and vertex
-- [ ] a cli
-- [ ] store photon maps between renders (the whole point of photon mapping)
-- [ ] add some features from Peter Shirley's ray tracing in one weekend (BVH, camera model, antialiasing, perhaps noise and procedural generation)
-    - [X] antialiasing
-    - [X] gamma correction
-    - [X] more material subclasses
-    - [ ] BVH
-    - [ ] area lights
-     - [ ] perlin noise (maybe look at procedural generation? this is more long term)
-- [X] delete ```BRDF_s```, which should be used as the specular BRDF for the caustic photon map. I used the diffuse BRDF here instead, as an approximation/simplification. Perhaps add in specular BRDF in future.
-- [X] add in other material subclasses
-- [ ] sort ```use namespace std``` and ```pragma once```  and ```#ifndef```statements
-- [ ] colour bleeding by adding in multiple bounces in global photon map
+NB: I don't have a Windows machine to test this on, so please let me know if it doesn't work.
+
+### Running
+
+The raytracer must be run from the project root so that it can find the mesh files:
+
+```
+cd raytracer_cpp
+raytrace
+```
+
+The output will be saved as a ```.ppm``` file in the ```images/``` folder. To convert to ```.png```, use [ImageMagick](https://imagemagick.org/#gsc.tab=0):
+
+```magick images/<filename>.ppm output.png```
+
+or upload the ```.ppm``` to [convertio](https://convertio.co/).
 
 ## Acknowledgements
 
-- my lecturer Ken Cameron provided the base code that I worked off for this project, and I've left his comments in 
+- My lecturer Ken Cameron provided the base code that I worked off for this project, and I've left his comments in 
 - I used [The Cherno's project template](https://github.com/TheCherno/ProjectTemplate) to structure the project
-- kdtree.h and ```~Scene()``` were AI-assisted, the rest is my own work
+- kdtree.h was AI-assisted, the rest is my own work
 
 ## Licence
 
+## Future Plans:
 
-## notes
-
-- whitted ray tracer part uses fresnel equations, but the photon mapping uses russian roulette to decide on reflection vs transmission. fresnel equations are physically correct and russian roulette uses randomness and is considered simpler. Maybe change this to make both parts of the ray tracer consistant with each other.
-- Phong Illumination model is the ambient + diffuse + specular equation that you use to calculate the colour. Phong Shading (or normal interpolation) is the inerpolation you do using barycentric coordinates on triangles to smooth the polymesh. Two different concepts named after the same guy.
-- glass currently reflected light back at the light source (currently a point light, a mathematical point that isn't really a visible light source), so there's a caustic pattern that is physically correct but looks unnatural because it is usually reflected back onto an area light source and therefore obscured. The fix is to add emmisive materials/area lights, which is on the to do list.
-- global photon map currently does not bounce, so there is no colour bleeding. Adding in diffuse reflection is on the to do list. the ```break;``` in ```photon_trace()``` stops the photon from being reflected any further. you need to fix ```gather_diffuse_reflection()``` and ```g_russian_roulette``` to get colour bleeding working.
-
-
-
-materials stuff:
-- added in get_diffuse_BRDF() method on Material
-- added in is_reflective() and is_transparent() methods on Material (this means that each material has it's own built in property, and they can't be set manually in the scene setup ie once i've defined a material it can't be tampered with outside of the class)
-- delete BRDF_d on Material
-- delete reflective and transparent on Material
-- created Glass and Metal child classes of Material
-- made hard coded importance sampling a circle rather than a square -- still need to do it properly
-- added a tint to glass and scaled for it whenever refraction takes place
-- made a better constructor for Phong
-
-
-cli:
-
+- [ ] Importance sampling (currently hard coded)
+    - [ ] Caustic photons
+    - [ ] Indirect global photons
+- [ ] A CLI
+- [ ] Store photon maps between renders
+- [ ] Add some features from Peter Shirley's ray tracing in one weekend
+    - [ ] BVH
+    - [ ] area lights
+    - [ ] perlin noise
+    - [ ] improve camera model
+- [ ] Sort ```use namespace std``` and ```pragma once```  and ```#ifndef```statements
