@@ -34,6 +34,123 @@ Scene::Scene()
     globalTree    = nullptr;
 }
 
+void Scene::cornell_box_dark() {
+
+    string resourceDir = RESOURCE_DIR;
+
+    //glass = Glass();
+    // green glass
+    //glass = Glass(1.5f, 0.9f, Colour(0.0f, 0.4f, 0.1f, 1.0f));
+    //metal = Metal();
+
+    // TODO: these should really be set in the constructor for scene, considering they are fields
+    // they needed to be fields so that they weren't just local variables. Is there another way round this? Have you fixed this problem by adding smart pointers? so now the materials belong to the smart pointer objects, will the materials exist for as long as the smart pointer does? I'll need to check this, because thematerial itself is not a smart pointer
+    
+    // set red wall
+    Colour red_a = Colour(0.07f, 0.01f, 0.01f, 1.0f);
+    Colour red_d = Colour(0.65f, 0.05f, 0.05f, 1.0f);
+    Colour red_s = Colour(0.1f, 0.1f, 0.1f, 1.0f);
+    float power = 10.0f;
+    red = Phong(red_a, red_d, red_s, power);
+
+    // set green wall
+    Colour green_a = Colour(0.01f, 0.07f, 0.01f, 1.0f);
+    Colour green_d = Colour(0.12f, 0.45f, 0.12f, 1.0f);
+    Colour green_s = Colour(0.1f, 0.1f, 0.1f, 1.0f);
+    green = Phong(green_a, green_d, green_s, power);
+
+    // set white wall
+    //Colour white_a = Colour(0.10f, 0.08f, 0.06f, 1.0f);
+    //Colour white_d = Colour(0.95f, 0.85f, 0.65f, 1.0f);
+    //Colour white_s = Colour(0.1f, 0.1f, 0.1f, 1.0f);
+
+    //Colour white_a = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+    //Colour white_d = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+    //Colour white_s = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+
+    Colour white_a = Colour(0.08f, 0.07f, 0.05f, 1.0f);
+    Colour white_d = Colour(0.76f, 0.70f, 0.50f, 1.0f);
+    Colour white_s = Colour(0.1f, 0.1f, 0.1f, 1.0f);
+    white = Phong(white_a, white_d, white_s, power);
+
+    Vertex v = Vertex(0.0f, -2.0f, 7.0f);
+    Sphere *sphere = new Sphere(v, 2.0f);
+
+    // TODO: material should be set in the constructor for an object really, you shouldn't be able to change the material after an object has been created
+    sphere->material = &red;
+
+	/// put the scene in a box 
+
+    // TODO: check why these are pointers. Do you need 'new'? Can they be smart poitners? This is the way my lecturer did it, but go back and understand why
+	string fl_path = resourceDir + "/square.ply";
+	PolyMesh *fl = new PolyMesh((char *)fl_path.c_str());
+
+	string ce_path = resourceDir + "/ceiling.ply";
+	PolyMesh *ce = new PolyMesh((char *)ce_path.c_str());
+
+	string w1_path = resourceDir + "/wall1.ply";
+	PolyMesh *w1 = new PolyMesh((char *)w1_path.c_str());
+
+	string w2_path = resourceDir + "/wall2.ply";
+	PolyMesh *w2 = new PolyMesh((char *)w2_path.c_str());
+
+	string w3_path = resourceDir + "/wall3.ply";
+	PolyMesh *w3 = new PolyMesh((char *)w3_path.c_str());
+
+	string w4_path = resourceDir + "/wall4.ply";
+	PolyMesh *w4 = new PolyMesh((char *)w4_path.c_str());
+	
+	fl->material = &white;
+	ce->material = &white;
+	w1->material = &white;
+	w2->material = &green;
+	w3->material = &red;
+	w4->material = &white;
+
+	sphere->next = std::unique_ptr<Object>(fl);
+	fl->next = std::unique_ptr<Object>(ce);
+	ce->next = std::unique_ptr<Object>(w1);
+	w1->next = std::unique_ptr<Object>(w2);
+	w2->next = std::unique_ptr<Object>(w3);
+	w3->next = std::unique_ptr<Object>(w4);
+	w4->next = std::unique_ptr<Object>(nullptr);
+
+
+	//creates a light source
+	Vertex v1 = Vertex(0.0, 4.5, 7.0); //Vertex(-1.0, 1.0, -1.0);
+	//Colour c = Colour(0.5f, 0.5f, 0.5f, 1.0f);
+    Colour c = Colour(0.95f, 0.80f, 0.65f, 1.0f);
+	Vector d = Vector(0.0f, -1.0f, 0.0f);
+
+	PointLight *pl = new PointLight(v1, c, d);
+
+
+    float scaling = 0.5f;
+    // these two lights are AI generated
+    // fill light - from the left to lift shadows on the right side
+    Vertex fillLightPos = Vertex(-4.0f, 0.0f, 4.0f);
+    Colour fillIntensity = Colour(0.5f, 0.47f, 0.4f, 1.0f); // dimmer than main
+    Vector fillDir = Vector(1.0f, 0.0f, 0.0f);
+    PointLight *pl_fill = new PointLight(fillLightPos, fillIntensity, fillDir);
+
+    // rim light - from behind to separate objects from background
+    Vertex rimLightPos = Vertex(0.0f, 2.0f, 9.0f);
+    Colour rimIntensity = Colour(0.25f, 0.22f, 0.2f, 1.0f); // dimmest
+    Vector rimDir = Vector(0.0f, 0.0f, -1.0f);
+    PointLight *pl_rim = new PointLight(rimLightPos, rimIntensity, rimDir);
+
+	// define object_list and light_list
+	//object_list = pm;
+	//object_list->next = sphere;
+	object_list = std::unique_ptr<Object>(sphere);
+	//object_list->next = std::unique_ptr<Object>(fl);
+	light_list = std::unique_ptr<PointLight>(pl);
+    light_list->next = std::unique_ptr<PointLight>(pl_fill);
+    pl_fill->next = std::unique_ptr<PointLight>(pl_rim);
+    pl_rim->next = nullptr;
+}
+
+
 void Scene::cornell_box() {
 
     string resourceDir = RESOURCE_DIR;
@@ -558,26 +675,31 @@ Colour Scene::gather_diffuse_reflection(Ray ray, Hit best_hit, vector<Photon*> g
 
 			//do k nearest neighbours sampling again, but scale each reflection by kr (BRDF?) and add them all together
 			vector<Photon*> globalNeighbours;
-			globalTree->kNearest(nxt_hit.position, 5, globalNeighbours);
+			globalTree->kNearest(nxt_hit.position, 50, globalNeighbours);
 
 			Colour d = gather_diffuse(nxt_hit, globalNeighbours);
-			float f = 0.4;
-			d.scale(f); //nxt_hit.what->material->kr);
+			float kr = nxt_hit.what->material->get_kr();
+            //float f = 0.4;
+			d.scale(kr); //nxt_hit.what->material->kr);
 			diffuse_reflection.add(d);
 
 			// get next rays, if you loop over all globalNeighbours the number of rays increases exponentially
 			// so only add one here
 			for (Photon* p : globalNeighbours) {
 				Ray reflected;
-				reflect_ray(bounce_ray, best_hit, reflected);	
+				//reflect_ray(bounce_ray, best_hit, reflected);	
+				reflect_ray(bounce_ray, nxt_hit, reflected);	
 				Ray new_r = Ray(nxt_hit.position, p->direction);
-				nxt_rays.push_back(reflected);
-				break;
+				//nxt_rays.push_back(reflected);
+				nxt_rays.push_back(new_r);
+				//break;
 			}
 		}
 
-		if (!current_rays.empty()) {
-			float no_rays = float(current_rays.size());
+		//if (!current_rays.empty()) {
+		if (!nxt_rays.empty()) {
+			//float no_rays = float(current_rays.size());
+			float no_rays = float(nxt_rays.size());
 			float inv = 1.0f / no_rays;
 			diffuse_reflection.scale(inv);
 		}
@@ -684,6 +806,7 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 	bool saw_specular = false;
 	Ray photon_ray;
 	photon->ray(photon_ray);
+    int bounce_count = 0;
 
 	while (ref_limit > 0) {
 		
@@ -701,12 +824,25 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 			// add to global and check for caustic
 			photon->position = best_hit.position;
 			photon->direction = photon_ray.direction;
-			photon->BRDF_d = best_hit.what->material->get_diffuse_BRDF();
+			//photon->BRDF_d = best_hit.what->material->get_diffuse_BRDF();
+            if (bounce_count == 0) {
+                photon->BRDF_d = best_hit.what->material->get_diffuse_BRDF();
+            }
+            // debug: override intensity for bounced photons
+            //if (bounce_count > 0) {
+            //    photon->intensity = Colour(1.0f, 0.0f, 1.0f, 1.0f);
+            //}
+            if (bounce_count > 0) {
+                photon->intensity.r *= 5.0f;
+                photon->intensity.g *= 5.0f;
+                photon->intensity.b *= 5.0f;
+            }
 			globalPhotons.push_back(*photon);
             
 			if (saw_specular) {
-				// ensure photon has an id; if not, use pointer address as fallback:
-				int pid = (int)(intptr_t)photon;
+				// TODO: do you need an ID? check.
+                // AI gen: ensure photon has an id; if not, use pointer address as fallback:
+				//int pid = (int)(intptr_t)photon;
 
 				// make sure direction is the incoming photon ray direction at deposit:
 				Vector inc_dir = photon_ray.direction;
@@ -716,8 +852,28 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 				// reset the caustic photon
 				saw_specular = false;
 			}
+            Colour before = photon->intensity;
 			photon->g_russian_roulette(best_hit);
-			break;
+            /*
+            if (before.r != photon->intensity.r || before.g != photon->intensity.g || before.b != photon->intensity.b) {
+                cerr << "intensity changed" << endl;
+                cerr << "intensity before: " << before.r << ", " << before.g << ", " << before.b << endl;
+                cerr << "intensity after: " << photon->intensity.r << ", " << photon->intensity.g << ", " << photon->intensity.b << endl;
+            }
+            */
+			if (photon->absorbed) {break;}
+            if (photon->reflected) {
+                // TODO: use importance sampling here instead, this is a hard coded version similar to the one you use to fire photons at specular objects
+                Vector bounce_dir;
+                do {
+                    bounce_dir.x = ((rand() % 200000) - 100000)/100000.0f;
+                    bounce_dir.y = ((rand() % 200000) - 100000)/100000.0f;
+                    bounce_dir.z = ((rand() % 200000) - 100000)/100000.0f;
+                } while (bounce_dir.dot(best_hit.normal) < 0.0f); // reject if pointing into surface
+                bounce_dir.normalise();
+                photon_ray = Ray((0.001f * bounce_dir).add_vertex(best_hit.position), bounce_dir);
+                bounce_count++;
+            }
 		} else {
 			saw_specular = true;
 			photon->c_russian_roulette(best_hit);
@@ -749,6 +905,7 @@ void Scene::photon_trace(Photon *photon, int ref_limit) {
 			}
 		}
 	}
+    //cerr << "bounce_count: " << bounce_count << endl;
 }
 
 
@@ -758,7 +915,7 @@ void Scene::create_photon_maps() {
 	globalPhotons.clear();
 
 	PointLight *light = light_list.get();
-	int no_of_photons = 100000;
+	int no_of_photons = 1000000;
 	causticPhotons.reserve(no_of_photons);
 	globalPhotons.reserve(no_of_photons);
 	for (int n = 0; n < no_of_photons; n++) {

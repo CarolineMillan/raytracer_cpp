@@ -98,15 +98,23 @@ void Photon::ray(Ray &r)
 //russian roulette on rgb photons seperately
 void Photon::g_russian_roulette(Hit h)
 {
-	int new_w;
+	float new_w = w;
 	if(h.flag)
 	{
-		float kr, kt, P;
-		kr = h.what->material->get_kr();
-		kt = h.what->material->get_kt();
-		P = 1-kr;
+		//float kr = h.what->material->get_kr();
+		//float kt = h.what->material->get_kt();
+		//float P = 1-kr;
 
-		if(w <= 90)
+        // AI generated fix for P
+        // you're looking at diffuse objects, so your previous P using kr and kt was always 1, and so colour bleeding didn't work. This one bases P off of the diffuse BRDF instead. 
+        // TODO: check that this is the correct way to calculate P
+        Colour diff = h.what->material->get_diffuse_BRDF();
+        float albedo = (diff.r + diff.g + diff.b) / 3.0f;
+        float P = 1.0f - albedo;  // absorption probability
+        //cerr << "diff: " << diff.r << ", " << diff.g << ", " << diff.b << endl;
+        // end of AI
+
+		if(w <= 1.0f)
 		{
 			//sample s uniformly
 			//used https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution for this.
@@ -115,7 +123,7 @@ void Photon::g_russian_roulette(Hit h)
 			std::uniform_int_distribution<> dis(1, 100);
 			float s = dis(gen)/100.0;
 
-			if(s<P)//terminate path
+			if(s<P)
 			{
 				absorbed = true;
 				reflected = false;
@@ -128,6 +136,7 @@ void Photon::g_russian_roulette(Hit h)
 				reflected = true;
 				transmitted = false;
 				absorbed = false;
+                intensity.scale(diff);
 			}
 		}
 		else //absorbed. i.e. no more photon to deal with
@@ -136,7 +145,7 @@ void Photon::g_russian_roulette(Hit h)
 			reflected = false;
 			transmitted = false;
 		}
-	}
+	} else { w = 0; absorbed = true; }
 	w = new_w;
 }
 

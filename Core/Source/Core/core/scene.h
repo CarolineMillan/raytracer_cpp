@@ -48,6 +48,8 @@ public:
 
 	void cornell_box();
 
+	void cornell_box_dark();
+
 	Colour background_colour(float depth);
 
 	// Trace a ray through the scene and find the closest if any object

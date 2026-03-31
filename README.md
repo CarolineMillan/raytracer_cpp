@@ -2,16 +2,11 @@
 
 A classic Whitted-style ray tracer with global illumination via photon mapping, written in C++.
 
-It outputs a scene to a PPM image in the images folder, which can be converted to a viewable PNG via your terminal using ImageMagick or a website like [convertio](https://convertio.co/).
-
 ## Example Images
 
 ![cornell sphere](readme_renders/cornell_sphere.png)
 
 ![cornell teapot](readme_renders/cornell_teapot.png)
-
-## How it works
-
 
 ## Features
 
@@ -21,7 +16,7 @@ It outputs a scene to a PPM image in the images folder, which can be converted t
 - Shadows
 - Transparent and reflective materials
 - Phong shading
-- Phone interpolation for smoothing meshes
+- Phong interpolation for smoothing meshes
 - Photon mapping (global and caustic) using kd-trees and k-NN searches
 - Indirect diffuse illumination (colour bleeding) via global photon map
 - Glass tinting for coloured caustics
@@ -105,4 +100,4 @@ This software is available as open source under the terms of [the MIT license](L
     - [ ] area lights
     - [ ] perlin noise
     - [ ] improve camera model
-- [ ] Sort ```use namespace std``` and ```pragma once```  and ```#ifndef```statements
+    - [ ] Volumetric scattering / participating media
