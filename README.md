@@ -21,12 +21,16 @@ It outputs a scene to a PPM image in the images folder, which can be converted t
 - Shadows
 - Transparent and reflective materials
 - Phong shading
+- Phone interpolation for smoothing meshes
 - Photon mapping (global and caustic) using kd-trees and k-NN searches
+- Indirect diffuse illumination (colour bleeding) via global photon map
+- Glass tinting for coloured caustics
 - Multi-object scenes
+- Multi-light scenes
 - Antialiasing
 - Gamma correction
 
-## Installation and Running the Path Tracer
+## Installation and Running the Ray Tracer
 
 ### Installation
 #### Mac
@@ -60,7 +64,7 @@ Scripts\Setup-Windows.bat
 ```
 
 
-Requires `make` to be available first — install via [Git for Windows](https://gitforwindows.org/), [MSYS2](https://www.msys2.org/), or Chocolatey (`choco install make`). After running the script, `grape.exe` will be copied to `C:\Windows\System32`.
+Requires `make` to be available first — install via [Git for Windows](https://gitforwindows.org/), [MSYS2](https://www.msys2.org/), or Chocolatey (`choco install make`). After running the script, `raytrace.exe` will be copied to `C:\Windows\System32`.
 
 NB: I don't have a Windows machine to test this on, so please let me know if it doesn't work.
 
@@ -85,7 +89,9 @@ or upload the ```.ppm``` to [convertio](https://convertio.co/).
 - I used [The Cherno's project template](https://github.com/TheCherno/ProjectTemplate) to structure the project
 - kdtree.h was AI-assisted, the rest is my own work
 
-## Licence
+## License
+
+This software is available as open source under the terms of [the MIT license](LICENSE).
 
 ## Future Plans:
 
